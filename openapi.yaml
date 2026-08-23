@@ -123,7 +123,7 @@ paths:
             `download` only. `active` — all registered domains; `new` — domains
             first seen in the last 24 hours; `deleted` — domains that dropped
             out in the last 24 hours. `new` and `deleted` exist only for zones
-            with `isUpdatedDaily=1` (rebuilt daily from zone files).
+            with `isUpdatedDaily=1` (fully refreshed daily).
           schema:
             type: string
             enum: [active, new, deleted]
