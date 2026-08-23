@@ -64,7 +64,7 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 
 | URL | Description | Docs |
 |---|---|---|
-| `https://netapi.com/netapi_top1mln.csv` | NetAPI Top 1 Million — a free daily ranking of the most popular domains | [top-1m.md](endpoints/top-1m.md) |
+| `https://netapi.com/netapi_top1mln.csv` | NetAPI Top 1 Million — a free daily ranking of the most popular domains | [top-1m.md](endpoints/top-1m.md) · [dedicated repo](https://github.com/coderockers/top-1mln-websites) |
 
 ---
 

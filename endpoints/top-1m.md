@@ -7,6 +7,7 @@ A free, daily-rebuilt CSV list of the one million most popular domains on the In
 - **Response:** plain CSV, ~1,000,001 lines (header + 1,000,000 rows), about 22 MB
 - **License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free for any use, including commercial, with attribution to NetAPI
 - **Landing page and methodology:** [netapi.com/top-1-mln-websites/](https://netapi.com/top-1-mln-websites/)
+- **Dedicated repository:** [coderockers/top-1mln-websites](https://github.com/coderockers/top-1mln-websites) — documentation, citation file and download/parse examples in five languages
 
 ## Request
 
