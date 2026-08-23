@@ -2,7 +2,7 @@
 
 Reverse-IP lookup: returns up to three domains whose websites resolved to the given IP address at the last crawl, with their hostname and nameservers.
 
-- **Authentication:** `token` (any account, no paid plan required)
+- **Authentication:** `token` + active paid plan (any plan)
 - **Response:** up to 3 CSV rows, no header; plain text
 
 ## Request
@@ -45,6 +45,7 @@ If no domain is known for the IP the response body is the text `NOT FOUND` with 
 |---|---|
 | 401 | `401 Unauthorized: Missing user token.` |
 | 403 | `403 Forbidden: Incorrect token.` |
+| 403 | `403 Forbidden: No active/paid plan.` |
 | 405 | `405 Method Not Allowed: Missing IP.` |
 | 405 | `405 Method Not Allowed: IP address is too long.` |
 

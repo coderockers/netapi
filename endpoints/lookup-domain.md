@@ -2,7 +2,7 @@
 
 Returns what NetAPI knows about a single registered domain: nameservers, web-server hostname, IP and country, registration and expiration dates, and the registrar.
 
-- **Authentication:** `token` (any account, no paid plan required)
+- **Authentication:** `token` + active paid plan (any plan)
 - **Response:** one CSV row, no header; plain text
 
 ## Request
@@ -49,6 +49,7 @@ If the domain is not in the database the response body is the text `NOT FOUND` w
 |---|---|
 | 401 | `401 Unauthorized: Missing user token.` |
 | 403 | `403 Forbidden: Incorrect token.` |
+| 403 | `403 Forbidden: No active/paid plan.` |
 | 405 | `405 Method Not Allowed: Missing domain name.` |
 | 405 | `405 Method Not Allowed: Invalid domain zone.` — the TLD is not a supported zone |
 | 405 | `405 Method Not Allowed: Domain name is too long.` |

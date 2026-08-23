@@ -46,7 +46,7 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 | `download-dns` | Domains that use a given DNS provider | [download-dns.md](endpoints/download-dns.md) |
 | `download-whois` | Domains registered with a given registrar, with registration and expiration dates | [download-whois.md](endpoints/download-whois.md) |
 
-### Lookups (token)
+### Lookups (token + active plan)
 
 | Method | Description | Docs |
 |---|---|---|
@@ -77,8 +77,7 @@ https://netapi.com/api2/?method=lookup-domain&domain=example.com&token=YOUR_API_
 ```
 
 - `zones`, `dns`, `registrars`, `compromised`, `compromised-zone` and the Top 1M CSV need no token.
-- `lookup-domain` and `lookup-ip` need a valid token.
-- `download`, `download-dns` and `download-whois` need a valid token **and an active paid plan**. Detailed datasets (`dataset_type=dataset`) require the Plus plan or higher; the Basic plan covers domain lists only. See [Plans](https://netapi.com/plans/).
+- `lookup-domain`, `lookup-ip`, `download`, `download-dns` and `download-whois` need a valid token **and an active paid plan**. Detailed datasets (`dataset_type=dataset`) require the Plus plan or higher; the Basic plan covers domain lists only. See [Plans](https://netapi.com/plans/).
 
 Keep your token private: it identifies your account, and every request made with it is logged against that account.
 
@@ -141,7 +140,7 @@ Errors are returned as a short plain-text message with a matching HTTP status co
 |---|---|---|
 | 401 | `401 Unauthorized: Missing user token.` | `token` is missing on an endpoint that requires it |
 | 403 | `403 Forbidden: Incorrect token.` | the token does not belong to any account |
-| 403 | `403 Forbidden: No active/paid plan.` | download requested without an active subscription |
+| 403 | `403 Forbidden: No active/paid plan.` | download or lookup requested without an active subscription |
 | 403 | `403 Forbidden: Your current plan does not allow downloading of detailed datasets.` | `dataset_type=dataset` on the Basic plan |
 | 404 | `404 Not Found: File not found. …` | the requested file is not on the server (for example, a zone that has no `new` list yet) |
 | 405 | `405 Method Not Allowed: Missing API method.` | `method` is missing |

@@ -36,7 +36,7 @@ tags:
   - name: downloads
     description: Full CSV downloads (token + active plan)
   - name: lookups
-    description: Single-domain and single-IP lookups (token)
+    description: Single-domain and single-IP lookups (token + active plan)
   - name: threat-intelligence
     description: Free compromised-domain and compromised-IP feeds
   - name: free-datasets
@@ -58,8 +58,8 @@ paths:
         | `download` | `zone_tld`, `dataset_type`, `filter_type`, `token` | `format` | token + plan |
         | `download-dns` | `dns_alias`, `dataset_type`, `token` | `format` | token + plan |
         | `download-whois` | `registrar_id`, `dataset_type`, `token` | `format` | token + plan |
-        | `lookup-domain` | `domain`, `token` | — | token |
-        | `lookup-ip` | `ip`, `token` | — | token |
+        | `lookup-domain` | `domain`, `token` | — | token + plan |
+        | `lookup-ip` | `ip`, `token` | — | token + plan |
         | `compromised` | `dataset_type` (`ip`, `url`, `ip-all`, `url-all`) | — | none |
         | `compromised-zone` | `zone_tld` | — | none |
 
