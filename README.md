@@ -121,7 +121,7 @@ registrar,url,registered_at,expiring_at,majestic_rank,emails,phones,ip,ip_countr
 | Column | Meaning |
 |---|---|
 | `url` | domain name |
-| `majestic_rank` | position in the Majestic Million; empty if not ranked |
+| `majestic_rank` | Majestic rank, integer; empty if not ranked |
 | `dns1`, `dns2` | authoritative nameservers |
 | `hostname` | hostname of the web server |
 | `emails`, `phones` | contact details found on the website; comma-separated inside one quoted field |

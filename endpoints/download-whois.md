@@ -46,7 +46,7 @@ registrar,url,registered_at,expiring_at,majestic_rank,emails,phones,ip,ip_countr
 | `url` | Domain name. |
 | `registered_at` | Registration date, `YYYY-MM-DD`; empty if unknown. |
 | `expiring_at` | Expiration date, `YYYY-MM-DD`; empty if unknown. |
-| `majestic_rank` | Position in the Majestic Million; empty if not ranked. |
+| `majestic_rank` | Majestic rank, integer; empty if not ranked. |
 | `emails`, `phones` | Contact details found on the website, comma-separated inside one double-quoted field. |
 | `ip` | IP address of the web server. |
 | `ip_country` | Two-letter country code of the server IP. |

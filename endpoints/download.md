@@ -46,7 +46,7 @@ sample-site.net,,ns1.hosting.net,ns2.hosting.net,srv-12.hosting.net,,,198.51.100
 | Column | Description |
 |---|---|
 | `url` | Domain name. |
-| `majestic_rank` | Position in the Majestic Million; empty if the domain is not ranked. |
+| `majestic_rank` | Majestic rank, integer; empty if the domain is not ranked. |
 | `dns1`, `dns2` | Authoritative nameservers. `dns2` is empty when only one nameserver is known. |
 | `hostname` | Hostname of the web server. |
 | `emails` | Email addresses found on the website, comma-separated inside one double-quoted field; empty if none. |
