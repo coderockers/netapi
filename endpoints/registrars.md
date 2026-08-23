@@ -1,6 +1,6 @@
 # `registrars` — list of known registrars
 
-Returns every registrar NetAPI has identified from WHOIS/RDAP data, with the numeric ID you pass to [`download-whois`](download-whois.md) and [`sample-whois`](sample-whois.md), and the current number of domains registered through that registrar.
+Returns every registrar NetAPI has identified from WHOIS/RDAP data, with the numeric ID you pass to [`download-whois`](download-whois.md), and the current number of domains registered through that registrar.
 
 - **Authentication:** none
 - **Parameters:** none

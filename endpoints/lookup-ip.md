@@ -79,7 +79,7 @@ else:
 
 ## Notes
 
-- The response is capped at three domains. For the complete set of domains on an IP — shared hosting and CDN addresses can carry thousands — download the [reverse-IP dataset](download-ip.md).
+- The response is capped at three domains; shared hosting and CDN addresses can carry far more. Use the domain datasets ([`download`](download.md), `ip` column) if you need every domain on an address.
 - Results reflect the crawler index, not a live PTR query.
 - The same lookup is available in the browser at [netapi.com/lookup-ip/](https://netapi.com/lookup-ip/).
 - Web reference: [netapi.com/help/api/#lookup-ip-api](https://netapi.com/help/api/#lookup-ip-api).

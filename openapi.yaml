@@ -5,8 +5,7 @@ info:
   description: |
     NetAPI serves daily-updated domain data as CSV: full domain lists and
     detailed datasets for more than 1,500 TLDs, newly registered and deleted
-    domains, domains grouped by DNS provider or registrar, a reverse-IP
-    dataset, single-domain and single-IP lookups, and free threat-intelligence
+    domains, domains grouped by DNS provider or registrar, single-domain and single-IP lookups, and free threat-intelligence
     feeds.
 
     All API operations share one path, `GET /api2/`, and are selected with
@@ -34,8 +33,6 @@ servers:
 tags:
   - name: reference
     description: Free lists of zones, DNS providers and registrars
-  - name: samples
-    description: Free 10-row samples of paid datasets
   - name: downloads
     description: Full CSV downloads (token + active plan)
   - name: lookups
@@ -58,19 +55,16 @@ paths:
         | `zones` | — | — | none |
         | `dns` | — | — | none |
         | `registrars` | — | — | none |
-        | `sample` | `zone_tld`, `dataset_type` | — | none |
-        | `sample-whois` | `registrar_id`, `dataset_type` | — | none |
         | `download` | `zone_tld`, `dataset_type`, `filter_type`, `token` | `format` | token + plan |
         | `download-dns` | `dns_alias`, `dataset_type`, `token` | `format` | token + plan |
         | `download-whois` | `registrar_id`, `dataset_type`, `token` | `format` | token + plan |
-        | `download-ip` | `token` | `format` | token + plan |
         | `lookup-domain` | `domain`, `token` | — | token |
         | `lookup-ip` | `ip`, `token` | — | token |
         | `compromised` | `dataset_type` (`ip`, `url`, `ip-all`, `url-all`) | — | none |
         | `compromised-zone` | `zone_tld` | — | none |
 
         `dataset_type=dataset` on any download method requires the Plus plan or higher.
-      tags: [reference, samples, downloads, lookups, threat-intelligence]
+      tags: [reference, downloads, lookups, threat-intelligence]
       security:
         - {}
         - apiToken: []
@@ -85,12 +79,9 @@ paths:
               - zones
               - dns
               - registrars
-              - sample
-              - sample-whois
               - download
               - download-dns
               - download-whois
-              - download-ip
               - lookup-domain
               - lookup-ip
               - compromised
@@ -117,8 +108,7 @@ paths:
           in: query
           required: false
           description: |
-            For `download`, `download-dns`, `download-whois`, `sample`,
-            `sample-whois`: `list` (one domain per line) or `dataset` (domain
+            For `download`, `download-dns`, `download-whois`: `list` (one domain per line) or `dataset` (domain
             plus metadata).
 
             For `compromised`: `url` (current domains), `ip` (current IPs),
@@ -147,7 +137,7 @@ paths:
         - name: registrar_id
           in: query
           required: false
-          description: "`download-whois` and `sample-whois`. Numeric registrar ID from `method=registrars`, e.g. `146` for GoDaddy.com, LLC."
+          description: "`download-whois` only. Numeric registrar ID from `method=registrars`, e.g. `146` for GoDaddy.com, LLC."
           schema:
             type: integer
           example: 146
@@ -180,7 +170,6 @@ paths:
             Success. The body depends on the method:
 
             * `zones`, `dns`, `registrars` — CSV with a header row (`text/html; charset=UTF-8` is sent as content type; treat the body as CSV).
-            * `sample`, `sample-whois` — CSV file with a header row and 10 data rows.
             * `download*` — CSV file, gzip-compressed unless `format=plain`, served with a `Content-Disposition` filename.
             * `lookup-domain` — one CSV row without header (`url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id`), or the text `NOT FOUND`.
             * `lookup-ip` — up to 3 CSV rows without header (`url,hostname,dns1,dns2`), or the text `NOT FOUND`.
@@ -207,20 +196,15 @@ paths:
                     id,name,brand_name,total
                     146,"GoDaddy.com, LLC","GoDaddy",65992964
                 zoneDataset:
-                  summary: download / sample, dataset_type=dataset
+                  summary: download, dataset_type=dataset
                   value: |
                     url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
                     example.de,8421,ns1.example.de,ns2.example.de,web1.example.de,"info@example.de,sales@example.de",+49-30-1234567,203.0.113.10,DE
                 registrarDataset:
-                  summary: download-whois / sample-whois, dataset_type=dataset
+                  summary: download-whois, dataset_type=dataset
                   value: |
                     registrar,url,registered_at,expiring_at,majestic_rank,emails,phones,ip,ip_country
                     "GoDaddy.com, LLC",themis.abogado,2025-03-12,2027-03-12,,info@themis.abogado,,34.174.62.87,US
-                ip2domain:
-                  summary: download-ip
-                  value: |
-                    IP,domains
-                    203.0.113.10,"example.de,example-shop.de"
                 lookupDomain:
                   summary: lookup-domain
                   value: |

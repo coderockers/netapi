@@ -1,6 +1,6 @@
 # NetAPI — Domain Data API (v2)
 
-[NetAPI](https://netapi.com/) provides daily-updated domain data as downloadable CSV files and a small set of lookup endpoints: full domain lists for more than 1,500 TLDs, detailed datasets (nameservers, hosting IP, country, emails, phone numbers, Majestic rank), newly registered domains, domains grouped by DNS provider or registrar, reverse-IP data, and free threat-intelligence feeds.
+[NetAPI](https://netapi.com/) provides daily-updated domain data as downloadable CSV files and a small set of lookup endpoints: full domain lists for more than 1,500 TLDs, detailed datasets (nameservers, hosting IP, country, emails, phone numbers, Majestic rank), newly registered domains, domains grouped by DNS provider or registrar, and free threat-intelligence feeds.
 
 This repository is the official companion to the API. It documents every endpoint, ships an OpenAPI specification and contains ready-to-run examples in cURL, Python and PHP.
 
@@ -17,10 +17,7 @@ This repository is the official companion to the API. It documents every endpoin
 # 1. Which zones are available? (no token needed)
 curl "https://netapi.com/api2/?method=zones"
 
-# 2. Try a free 10-row sample of the .com dataset
-curl "https://netapi.com/api2/?method=sample&zone_tld=com&dataset_type=dataset"
-
-# 3. Download the full .de domain list (requires a token and an active plan)
+# 2. Download the full .de domain list (requires a token and an active plan)
 curl "https://netapi.com/api2/?method=download&zone_tld=de&dataset_type=list&filter_type=active&token=YOUR_API_TOKEN" \
   -o de_active_list.csv.gz
 ```
@@ -41,13 +38,6 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 | `dns` | Supported DNS providers (aliases for `download-dns`) | [dns.md](endpoints/dns.md) |
 | `registrars` | Known registrars (IDs for `download-whois`) | [registrars.md](endpoints/registrars.md) |
 
-### Samples (free, no token)
-
-| Method | Description | Docs |
-|---|---|---|
-| `sample` | 10-row sample of a zone's list or dataset | [sample.md](endpoints/sample.md) |
-| `sample-whois` | 10-row sample of a registrar's list or dataset | [sample-whois.md](endpoints/sample-whois.md) |
-
 ### Downloads (token + active plan)
 
 | Method | Description | Docs |
@@ -55,7 +45,6 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 | `download` | Domain list or dataset for one zone or all zones; active, new or deleted domains | [download.md](endpoints/download.md) |
 | `download-dns` | Domains that use a given DNS provider | [download-dns.md](endpoints/download-dns.md) |
 | `download-whois` | Domains registered with a given registrar, with registration and expiration dates | [download-whois.md](endpoints/download-whois.md) |
-| `download-ip` | Reverse-IP dataset: every known hosting IP with the domains behind it | [download-ip.md](endpoints/download-ip.md) |
 
 ### Lookups (token)
 
@@ -87,9 +76,9 @@ Pass your token as the `token` query parameter:
 https://netapi.com/api2/?method=lookup-domain&domain=example.com&token=YOUR_API_TOKEN
 ```
 
-- `zones`, `dns`, `registrars`, `sample`, `sample-whois`, `compromised`, `compromised-zone` and the Top 1M CSV need no token.
+- `zones`, `dns`, `registrars`, `compromised`, `compromised-zone` and the Top 1M CSV need no token.
 - `lookup-domain` and `lookup-ip` need a valid token.
-- `download`, `download-dns`, `download-whois` and `download-ip` need a valid token **and an active paid plan**. Detailed datasets (`dataset_type=dataset`) require the Plus plan or higher; the Basic plan covers domain lists only. See [Plans](https://netapi.com/plans/).
+- `download`, `download-dns` and `download-whois` need a valid token **and an active paid plan**. Detailed datasets (`dataset_type=dataset`) require the Plus plan or higher; the Basic plan covers domain lists only. See [Plans](https://netapi.com/plans/).
 
 Keep your token private: it identifies your account, and every request made with it is logged against that account.
 
@@ -99,7 +88,7 @@ Keep your token private: it identifies your account, and every request made with
 
 | Parameter | Values | Used by |
 |---|---|---|
-| `dataset_type` | `list` — one domain per line · `dataset` — domain plus metadata | `download`, `download-dns`, `download-whois`, `sample`, `sample-whois` |
+| `dataset_type` | `list` — one domain per line · `dataset` — domain plus metadata | `download`, `download-dns`, `download-whois` |
 | `filter_type` | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours · `deleted` — domains that disappeared in the last 24 hours | `download` |
 | `format` | `plain` — uncompressed CSV instead of `.csv.gz` | all `download-*` methods |
 | `token` | your API token | see Authentication |
@@ -110,7 +99,7 @@ Keep your token private: it identifies your account, and every request made with
 
 ## Response format
 
-- Reference lists, samples and downloads are CSV with a header row. Fields that may contain commas (provider names, registrar names, email and phone lists) are double-quoted.
+- Reference lists and downloads are CSV with a header row. Fields that may contain commas (provider names, registrar names, email and phone lists) are double-quoted.
 - `lookup-domain` and `lookup-ip` return CSV rows **without** a header. When nothing is found they return the text `NOT FOUND` with HTTP 200.
 - `compromised` and `compromised-zone` return one entry per line, preceded by a single `#` comment line with the list name and date.
 - Downloads are served as `application/octet-stream` with a `Content-Disposition` filename, e.g. `de_active_list.csv.gz`.
@@ -118,13 +107,13 @@ Keep your token private: it identifies your account, and every request made with
 
 ### Dataset columns
 
-Zone datasets (`download`, `download-dns`, `sample`):
+Zone datasets (`download`, `download-dns`):
 
 ```
 url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
 ```
 
-Registrar datasets (`download-whois`, `sample-whois`):
+Registrar datasets (`download-whois`):
 
 ```
 registrar,url,registered_at,expiring_at,majestic_rank,emails,phones,ip,ip_country
@@ -186,7 +175,7 @@ Each endpoint page lists the exact messages it can return.
 ## Data updates and coverage
 
 - Zones with `isUpdatedDaily=1` (most gTLDs and many ccTLDs) are refreshed every day; the rest are refreshed monthly.
-- DNS-provider and registrar datasets, the reverse-IP dataset, the compromised feeds and the Top 1M ranking are rebuilt daily.
+- DNS-provider and registrar datasets, the compromised feeds and the Top 1M ranking are rebuilt daily.
 - `zones`, `dns` and `registrars` return live counts, so the numbers change from day to day.
 
 ## Crawler

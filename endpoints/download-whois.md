@@ -101,5 +101,4 @@ with requests.get("https://netapi.com/api2/", params=params, stream=True, timeou
 ## Notes
 
 - Registrar attribution and dates come from WHOIS/RDAP. Domains whose registrar could not be determined are not included in any registrar list.
-- A free 10-row sample of any registrar dataset is available through [`sample-whois`](sample-whois.md).
 - Web reference: [netapi.com/help/api/#whois-download](https://netapi.com/help/api/#whois-download); registrar pages: [netapi.com/whois-providers/](https://netapi.com/whois-providers/).

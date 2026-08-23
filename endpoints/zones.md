@@ -2,7 +2,7 @@
 
 Returns every TLD available in NetAPI together with two flags: whether the zone is refreshed daily and whether it is a country-code TLD.
 
-Use it to discover valid `zone_tld` values for [`download`](download.md), [`sample`](sample.md) and [`compromised-zone`](compromised-zone.md), and to find out which zones support the `new` and `deleted` filters.
+Use it to discover valid `zone_tld` values for [`download`](download.md) and [`compromised-zone`](compromised-zone.md), and to find out which zones support the `new` and `deleted` filters.
 
 - **Authentication:** none
 - **Parameters:** none
