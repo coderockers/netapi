@@ -13,7 +13,7 @@ GET https://netapi.com/api2/?method=lookup-domain&domain={domain}&token={token}
 
 | Parameter | Required | Description |
 |---|---|---|
-| `domain` | yes | Registered domain name, e.g. `example.com` or `example.co.uk`. Subdomains, schemes and paths are not accepted; the TLD must be one of the zones in [`zones`](zones.md). Maximum length 199 characters. |
+| `domain` | yes | Registered domain name, e.g. `example.com`. Pass the bare domain — no scheme, path or subdomain (anything else is looked up literally and returns `NOT FOUND`). The last label must be a zone listed in [`zones`](zones.md). Maximum length 199 characters. |
 | `token` | yes | Your API token |
 
 ## Response

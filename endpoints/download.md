@@ -13,7 +13,7 @@ GET https://netapi.com/api2/?method=download&zone_tld={tld}&dataset_type={list|d
 
 | Parameter | Required | Description |
 |---|---|---|
-| `zone_tld` | yes | TLD without the leading dot (`com`, `de`, `co.uk`), punycode for IDN zones (`xn--p1ai`), or `all-zones` for one combined file of every zone. Valid values come from [`zones`](zones.md). |
+| `zone_tld` | yes | First-level TLD without the leading dot (`com`, `net`, `uk`), punycode for IDN zones (`xn--p1ai`), or `all-zones` for one combined file of every zone. Valid values come from [`zones`](zones.md). |
 | `dataset_type` | yes | `list` — one domain per line · `dataset` — domain plus metadata (see columns below) |
 | `filter_type` | yes | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours · `deleted` — domains that dropped out of the zone in the last 24 hours |
 | `token` | yes | Your API token from the [dashboard](https://netapi.com/dashboard/) |
@@ -23,22 +23,22 @@ GET https://netapi.com/api2/?method=download&zone_tld={tld}&dataset_type={list|d
 
 ## Response
 
-The file is served as `application/octet-stream` with a `Content-Disposition` filename built from the request, for example `de_active_list.csv.gz`, `all-zones_new_dataset.csv.gz`, `com_deleted_list.csv`.
+The file is served as `application/octet-stream` with a `Content-Disposition` filename built from the request, for example `net_active_list.csv.gz`, `all-zones_new_dataset.csv.gz`, `com_deleted_list.csv`.
 
 `dataset_type=list`:
 
 ```
 url
-example.de
-beispiel.de
+example.net
+sample-site.net
 ```
 
 `dataset_type=dataset`:
 
 ```
 url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
-example.de,8421,ns1.example.de,ns2.example.de,web1.example.de,"info@example.de,sales@example.de",+49-30-1234567,203.0.113.10,DE
-beispiel.de,,ns1.hosting.net,ns2.hosting.net,srv-12.hosting.net,,,198.51.100.7,DE
+example.net,8421,ns1.example.net,ns2.example.net,web1.example.net,"info@example.net,sales@example.net",+1-202-555-0143,203.0.113.10,US
+sample-site.net,,ns1.hosting.net,ns2.hosting.net,srv-12.hosting.net,,,198.51.100.7,DE
 ```
 
 ### Dataset columns
@@ -48,10 +48,10 @@ beispiel.de,,ns1.hosting.net,ns2.hosting.net,srv-12.hosting.net,,,198.51.100.7,D
 | `url` | Domain name. |
 | `majestic_rank` | Position in the Majestic Million; empty if the domain is not ranked. |
 | `dns1`, `dns2` | Authoritative nameservers. `dns2` is empty when only one nameserver is known. |
-| `hostname` | Hostname of the web server (reverse DNS of `ip`). |
+| `hostname` | Hostname of the web server. |
 | `emails` | Email addresses found on the website, comma-separated inside one double-quoted field; empty if none. |
 | `phones` | Phone numbers found on the website, same format as `emails`. |
-| `ip` | IP address of the web server (IPv4 or IPv6). |
+| `ip` | IP address of the web server. |
 | `ip_country` | Two-letter country code of the server IP (geolocation). |
 
 Metadata is collected when the domain's website is crawled; fields are empty for domains without a reachable website.
@@ -75,14 +75,14 @@ Metadata is collected when the domain's website is crawled; fields are empty for
 cURL — save the compressed file:
 
 ```bash
-curl "https://netapi.com/api2/?method=download&zone_tld=de&dataset_type=list&filter_type=active&token=YOUR_API_TOKEN" \
-  -o de_active_list.csv.gz
+curl "https://netapi.com/api2/?method=download&zone_tld=net&dataset_type=list&filter_type=active&token=YOUR_API_TOKEN" \
+  -o net_active_list.csv.gz
 ```
 
 cURL — unpack on the fly and count the domains:
 
 ```bash
-curl -s "https://netapi.com/api2/?method=download&zone_tld=de&dataset_type=list&filter_type=new&token=YOUR_API_TOKEN" \
+curl -s "https://netapi.com/api2/?method=download&zone_tld=net&dataset_type=list&filter_type=new&token=YOUR_API_TOKEN" \
   | gunzip | tail -n +2 | wc -l
 ```
 
@@ -91,12 +91,11 @@ Python — stream the dataset without writing the archive to disk:
 ```python
 import csv
 import gzip
-import io
 import requests
 
 params = {
     "method": "download",
-    "zone_tld": "de",
+    "zone_tld": "net",
     "dataset_type": "dataset",
     "filter_type": "active",
     "token": "YOUR_API_TOKEN",
@@ -115,6 +114,6 @@ More examples: [examples/](../examples/).
 ## Notes
 
 - A complete download of a large zone (`.com`, `all-zones`) takes a while even when compressed; use a client that streams to disk rather than buffering in memory.
-- Files are rebuilt once a day. Requesting the same file several times a day returns the same content.
+- Files for daily zones are rebuilt once a day (monthly zones once a month); requesting the same file again on the same day returns the same content.
 - Every download is logged against your token.
 - Web reference: [netapi.com/help/api/#list-api](https://netapi.com/help/api/#list-api).

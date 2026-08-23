@@ -1,6 +1,6 @@
 # `compromised-zone` — currently compromised domains in one TLD (free)
 
-Returns the subset of the current compromised-domain feed that belongs to a single domain zone — for example every `.com` or `.co.uk` domain reported in the last 24 hours. IP addresses and historical entries are not included.
+Returns the subset of the current compromised-domain feed that belongs to a single domain zone — for example every `.com` or `.uk` domain reported in the last 24 hours. IP addresses and historical entries are not included.
 
 - **Authentication:** none
 - **Response:** plain text, one domain per line, served as a file download
@@ -14,7 +14,7 @@ GET https://netapi.com/api2/?method=compromised-zone&zone_tld={tld}
 
 | Parameter | Required | Description |
 |---|---|---|
-| `zone_tld` | yes | TLD without the leading dot: `com`, `co.uk`, `xn--p1ai`. Case-insensitive. Must be one of the zones in [`zones`](zones.md). |
+| `zone_tld` | yes | First-level TLD without the leading dot: `com`, `uk`, `xn--p1ai`. Case-insensitive. Must be one of the zones in [`zones`](zones.md); second-level zones such as `co.uk` are not accepted — request `uk` and filter the result. |
 
 ## Response
 
@@ -46,7 +46,7 @@ Python — count compromised domains in a few zones:
 ```python
 import requests
 
-for tld in ("com", "xyz", "top", "de"):
+for tld in ("com", "xyz", "top", "uk"):
     resp = requests.get(
         "https://netapi.com/api2/",
         params={"method": "compromised-zone", "zone_tld": tld},

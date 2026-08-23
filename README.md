@@ -17,9 +17,9 @@ This repository is the official companion to the API. It documents every endpoin
 # 1. Which zones are available? (no token needed)
 curl "https://netapi.com/api2/?method=zones"
 
-# 2. Download the full .de domain list (requires a token and an active plan)
-curl "https://netapi.com/api2/?method=download&zone_tld=de&dataset_type=list&filter_type=active&token=YOUR_API_TOKEN" \
-  -o de_active_list.csv.gz
+# 2. Download the full .net domain list (requires a token and an active plan)
+curl "https://netapi.com/api2/?method=download&zone_tld=net&dataset_type=list&filter_type=active&token=YOUR_API_TOKEN" \
+  -o net_active_list.csv.gz
 ```
 
 Get your API token in the [NetAPI dashboard](https://netapi.com/dashboard/) — sign up with an email address or a Google account, no password required.
@@ -89,7 +89,7 @@ Keep your token private: it identifies your account, and every request made with
 |---|---|---|
 | `dataset_type` | `list` — one domain per line · `dataset` — domain plus metadata | `download`, `download-dns`, `download-whois` |
 | `filter_type` | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours · `deleted` — domains that disappeared in the last 24 hours | `download` |
-| `format` | `plain` — uncompressed CSV instead of `.csv.gz` | all `download-*` methods |
+| `format` | `plain` — uncompressed CSV instead of `.csv.gz` | `download`, `download-dns`, `download-whois` |
 | `token` | your API token | see Authentication |
 
 `new` and `deleted` are available only for zones that are updated daily (`isUpdatedDaily=1` in `zones`). Zones refreshed monthly support `active` only.
@@ -101,7 +101,7 @@ Keep your token private: it identifies your account, and every request made with
 - Reference lists and downloads are CSV with a header row. Fields that may contain commas (provider names, registrar names, email and phone lists) are double-quoted.
 - `lookup-domain` and `lookup-ip` return CSV rows **without** a header. When nothing is found they return the text `NOT FOUND` with HTTP 200.
 - `compromised` and `compromised-zone` return one entry per line, preceded by a single `#` comment line with the list name and date.
-- Downloads are served as `application/octet-stream` with a `Content-Disposition` filename, e.g. `de_active_list.csv.gz`.
+- Downloads are served as `application/octet-stream` with a `Content-Disposition` filename, e.g. `net_active_list.csv.gz`.
 - Plain-text downloads can be very large (the `.com` dataset is several gigabytes uncompressed). Use `format=plain` only when you really need it.
 
 ### Dataset columns
@@ -177,7 +177,7 @@ Each endpoint page lists the exact messages it can return.
 
 ## Data updates and coverage
 
-- Zones with `isUpdatedDaily=1` (most gTLDs and many ccTLDs) are refreshed every day; the rest are refreshed monthly.
+- Zones with `isUpdatedDaily=1` (the gTLDs and a few ccTLDs) are refreshed every day; the rest — most ccTLDs, including large ones such as `.de` or `.uk` — are refreshed monthly.
 - DNS-provider and registrar datasets, the compromised feeds and the Top 1M ranking are rebuilt daily.
 - `zones`, `dns` and `registrars` return live counts, so the numbers change from day to day.
 

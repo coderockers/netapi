@@ -98,12 +98,12 @@ paths:
           in: query
           required: false
           description: |
-            TLD without the leading dot (`com`, `de`, `co.uk`; punycode for IDN
-            zones such as `xn--p1ai`). `download` also accepts `all-zones`.
+            First-level TLD without the leading dot (`com`, `net`, `uk`; punycode for
+            IDN zones such as `xn--p1ai`). `download` also accepts `all-zones`.
             Valid values come from `method=zones`.
           schema:
             type: string
-          example: de
+          example: net
         - name: dataset_type
           in: query
           required: false
@@ -184,7 +184,7 @@ paths:
                   value: |
                     zoneTLD,isUpdatedDaily,isCountryCode
                     com,1,0
-                    de,1,1
+                    de,0,1
                 dns:
                   summary: method=dns
                   value: |
@@ -199,7 +199,7 @@ paths:
                   summary: download, dataset_type=dataset
                   value: |
                     url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
-                    example.de,8421,ns1.example.de,ns2.example.de,web1.example.de,"info@example.de,sales@example.de",+49-30-1234567,203.0.113.10,DE
+                    example.net,8421,ns1.example.net,ns2.example.net,web1.example.net,"info@example.net,sales@example.net",+1-202-555-0143,203.0.113.10,US
                 registrarDataset:
                   summary: download-whois, dataset_type=dataset
                   value: |

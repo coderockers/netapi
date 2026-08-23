@@ -1,6 +1,6 @@
 # `compromised` — compromised domains and IP addresses (free)
 
-Returns NetAPI's threat-intelligence feed: domain names and IP addresses currently reported as compromised (phishing, malware distribution, botnet C2, spam infrastructure), or the complete history of everything ever listed.
+Returns NetAPI's threat-intelligence feed: domain names and IP addresses currently reported as compromised or malicious by public threat feeds, or the complete history of everything ever listed.
 
 - **Authentication:** none
 - **Response:** plain text, one entry per line, served as a file download
@@ -77,7 +77,7 @@ for domain in ("example.com", "00zyku.com"):
 ## Notes
 
 - "Last 24 hours" means the entry was present on at least one of the upstream threat feeds within the last day. Entries drop off the current list as soon as they are no longer reported, which is why the current list is the one to use for blocking.
-- The `*-all` lists are historical. A domain or IP appearing there was listed at some point; it is not necessarily compromised now — in most cases it has been cleaned up or the domain has expired.
+- The `*-all` lists are historical. A domain or IP appearing there was listed at some point; it is not necessarily compromised now — usually it has been cleaned up or the domain has expired.
 - The `url` lists contain host names only (registered domains and, where reported, subdomains) — no schemes or paths.
 - Feeds are rebuilt daily. Per-zone breakdowns are available through [`compromised-zone`](compromised-zone.md); statistics and charts on [netapi.com/compromised-urls/](https://netapi.com/compromised-urls/) and [netapi.com/compromised-ips/](https://netapi.com/compromised-ips/); abuse research by TLD and registrar at [netapi.com/research/](https://netapi.com/research/).
 - Web reference: [netapi.com/help/api/#compromised-api](https://netapi.com/help/api/#compromised-api).

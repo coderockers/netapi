@@ -1,6 +1,6 @@
 # `download-dns` — domains by DNS provider
 
-Downloads every domain whose authoritative nameservers belong to a given DNS provider — for example all domains on Cloudflare, Amazon Route 53 or GoDaddy nameservers — across all zones, as a list or as a detailed dataset.
+Downloads every domain whose authoritative nameservers belong to a given DNS provider — for example all domains on Cloudflare, GoDaddy or Google nameservers — across all zones, as a list or as a detailed dataset.
 
 - **Authentication:** `token` + active paid plan. `dataset_type=dataset` requires the Plus plan or higher.
 - **Response:** gzip-compressed CSV file (`.csv.gz`) with a header row; plain CSV with `format=plain`
@@ -37,7 +37,7 @@ url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
 example.com,1203,ada.ns.cloudflare.com,rob.ns.cloudflare.com,,"hello@example.com",,104.21.5.77,US
 ```
 
-Column descriptions: [download.md](download.md#dataset-columns). `dns1`/`dns2` always point to the requested provider's nameservers; `hostname` is frequently empty for domains behind a CDN.
+Column descriptions: [download.md](download.md#dataset-columns). `dns1`/`dns2` point to the requested provider's nameservers.
 
 ## Errors
 
