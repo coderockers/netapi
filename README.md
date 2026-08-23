@@ -7,7 +7,7 @@ This repository is the official companion to the API. It documents every endpoin
 - **Base URL:** `https://netapi.com/api2/`
 - **Transport:** HTTPS, `GET` only, parameters in the query string
 - **Response format:** CSV. Downloads are gzip-compressed (`.csv.gz`) unless you pass `format=plain`; list and lookup endpoints return plain text.
-- **Web documentation:** [netapi.com/help/api](https://netapi.com/help/api/) (always the most up-to-date reference) · [FAQ](https://netapi.com/help/faq/)
+- **Web documentation:** [netapi.com/help/api/](https://netapi.com/help/api/) (always the most up-to-date reference) · [FAQ](https://netapi.com/help/faq/)
 
 ---
 
@@ -194,5 +194,5 @@ Website metadata (hostname, emails, phone numbers) is collected by our crawler, 
 
 ## Support
 
-- Questions about the API or your account: [netapi.com/contact-us](https://netapi.com/contact-us/)
+- Questions about the API or your account: [netapi.com/contact-us/](https://netapi.com/contact-us/)
 - Mistakes in this documentation: open an issue or a pull request in this repository.
