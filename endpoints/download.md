@@ -19,7 +19,7 @@ GET https://netapi.com/api2/?method=download&zone_tld={tld}&dataset_type={list|d
 | `token` | yes | Your API token from the [dashboard](https://netapi.com/dashboard/) |
 | `format` | no | `plain` — uncompressed CSV. Plain files for large zones run to several gigabytes; use only when you cannot handle gzip. |
 
-`new` and `deleted` exist only for zones with `isUpdatedDaily=1` in `zones`. For monthly zones request `active`.
+`new` and `deleted` exist only for zones with `isUpdatedDaily=1` in `zones`. For the other zones request `active`.
 
 ## Response
 
@@ -68,7 +68,7 @@ Metadata is collected when the domain's website is crawled; fields are empty for
 | 405 | `405 Method Not Allowed: Invalid zone tld.` |
 | 405 | `405 Method Not Allowed: Missing dataset type.` / `Invalid dataset type.` |
 | 405 | `405 Method Not Allowed: Missing filter type.` / `Invalid filter type.` |
-| 404 | `404 Not Found: File not found. …` — the file does not exist, typically `new` or `deleted` requested for a monthly zone |
+| 404 | `404 Not Found: File not found. …` — the file does not exist, typically `new` or `deleted` requested for a zone with `isUpdatedDaily=0` |
 
 ## Examples
 
@@ -114,6 +114,6 @@ More examples: [examples/](../examples/).
 ## Notes
 
 - A complete download of a large zone (`.com`, `all-zones`) takes a while even when compressed; use a client that streams to disk rather than buffering in memory.
-- Files for daily zones are rebuilt once a day (monthly zones once a month); requesting the same file again on the same day returns the same content.
+- Files are regenerated once a day; requesting the same file again on the same day returns the same content.
 - Every download is logged against your token.
 - Web reference: [netapi.com/help/api/#list-api](https://netapi.com/help/api/#list-api).

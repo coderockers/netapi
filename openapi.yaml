@@ -123,7 +123,7 @@ paths:
             `download` only. `active` — all registered domains; `new` — domains
             first seen in the last 24 hours; `deleted` — domains that dropped
             out in the last 24 hours. `new` and `deleted` exist only for zones
-            with `isUpdatedDaily=1`.
+            with `isUpdatedDaily=1` (rebuilt daily from zone files).
           schema:
             type: string
             enum: [active, new, deleted]
@@ -244,7 +244,7 @@ paths:
               schema:
                 type: string
         '404':
-          description: "`404 Not Found: File not found. Please contact the server administrator.` — the requested file does not exist (e.g. `new` for a monthly zone)."
+          description: "`404 Not Found: File not found. Please contact the server administrator.` — the requested file does not exist (e.g. `new` for a zone with `isUpdatedDaily=0`)."
           content:
             text/plain:
               schema:

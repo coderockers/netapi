@@ -92,7 +92,7 @@ Keep your token private: it identifies your account, and every request made with
 | `format` | `plain` — uncompressed CSV instead of `.csv.gz` | `download`, `download-dns`, `download-whois` |
 | `token` | your API token | see Authentication |
 
-`new` and `deleted` are available only for zones that are updated daily (`isUpdatedDaily=1` in `zones`). Zones refreshed monthly support `active` only.
+`new` and `deleted` are available only for zones that are rebuilt daily from zone files (`isUpdatedDaily=1` in `zones`). Other zones support `active` only.
 
 ---
 
@@ -177,7 +177,8 @@ Each endpoint page lists the exact messages it can return.
 
 ## Data updates and coverage
 
-- Zones with `isUpdatedDaily=1` (the gTLDs and a few ccTLDs) are refreshed every day; the rest — most ccTLDs, including large ones such as `.de` or `.uk` — are refreshed monthly.
+- Zones with `isUpdatedDaily=1` (the gTLDs and a few ccTLDs) are rebuilt every day from zone files, and their `new` and `deleted` lists are available.
+- Zones with `isUpdatedDaily=0` (most ccTLDs, including large ones such as `.de` or `.uk`) have no public zone file. Their domains are discovered by our crawlers: newly found domains are added every day, and a full refresh of the zone happens once a month. Only the `active` list is available for these zones.
 - DNS-provider and registrar datasets, the compromised feeds and the Top 1M ranking are rebuilt daily.
 - `zones`, `dns` and `registrars` return live counts, so the numbers change from day to day.
 

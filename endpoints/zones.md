@@ -23,7 +23,7 @@ zoneTLD,isUpdatedDaily,isCountryCode
 | Column | Type | Description |
 |---|---|---|
 | `zoneTLD` | string | The top-level domain without the leading dot: `com`, `de`, `uk`. Only first-level TLDs are listed — second-level zones such as `co.uk` are part of `uk`. Internationalised TLDs are given in punycode, e.g. `xn--p1ai` for `.рф`. |
-| `isUpdatedDaily` | `0` / `1` | `1` — the zone is refreshed every day and supports the `new` and `deleted` filters in `download`; `0` — the zone is refreshed monthly and supports `active` only. |
+| `isUpdatedDaily` | `0` / `1` | `1` — the zone is rebuilt every day from its zone file and supports the `new` and `deleted` filters in `download`; `0` — no public zone file: domains are discovered by crawling, new ones are added daily and the zone is fully refreshed once a month; `active` only. |
 | `isCountryCode` | `0` / `1` | `1` — country-code TLD (ccTLD); `0` — generic TLD (gTLD). |
 
 Example (the order of the lines is not significant):
