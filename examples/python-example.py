@@ -1,30 +1,39 @@
-import requests
+"""Download a zone dataset from NetAPI and stream it row by row.
+
+The response is a gzip-compressed CSV. This example decompresses it on the
+fly, so even the .com dataset can be processed without buffering it in memory
+or unpacking it to disk.
+
+Requires: requests (pip install requests)
+"""
+
+import csv
 import gzip
-import io
 
-# Your API parameters
+import requests
+
 API_URL = "https://netapi.com/api2/"
-API_TOKEN = "YOUR_API_KEY"
+API_TOKEN = "YOUR_API_TOKEN"  # https://netapi.com/dashboard/
 
-# Parameters for API request
 params = {
     "method": "download",
-    "zone_tld": "net",           # e.g., 'de', 'com', or 'all-zones'
-    "dataset_type": "list",     # 'list' or 'dataset'
-    "filter_type": "active",    # 'active' or 'new' (for gTLD)
+    "zone_tld": "net",          # any TLD from ?method=zones, or "all-zones"
+    "dataset_type": "dataset",  # "list" (domains only) or "dataset" (with metadata)
+    "filter_type": "active",    # "active", "new" or "deleted"
     "token": API_TOKEN,
 }
 
-# Make the request
-response = requests.get(API_URL, params=params)
+with requests.get(API_URL, params=params, stream=True, timeout=600) as resp:
+    if resp.status_code != 200:
+        # Errors come back as a short plain-text message, e.g.
+        # "403 Forbidden: No active/paid plan."
+        raise SystemExit(f"HTTP {resp.status_code}: {resp.text}")
 
-# Check if request is successful
-if response.status_code == 200:
-    # Decompress gzip content
-    with gzip.open(io.BytesIO(response.content), 'rt', encoding='utf-8') as f:
-        # Read and print first 10 lines
-        for _ in range(10):
-            line = f.readline()
-            print(line.strip())
-else:
-    print(f"Error {response.status_code}: {response.text}")
+    with gzip.open(resp.raw, mode="rt", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        print("Columns:", reader.fieldnames)
+
+        for i, row in enumerate(reader, start=1):
+            print(row["url"], row["dns1"], row["ip"], row["ip_country"])
+            if i == 10:
+                break  # remove to process the whole file

@@ -1,79 +1,85 @@
-# Endpoint: `?method=lookup-ip`
+# `lookup-ip` — domains hosted on one IP address
 
-Performs a reverse lookup for a specific IP address and returns associated domain metadata.
+Reverse-IP lookup: returns up to three domains whose websites resolved to the given IP address at the last crawl, with their hostname and nameservers.
 
-The response is returned as plain-text CSV (one line per domain mapped to the IP).
+- **Authentication:** `token` (any account, no paid plan required)
+- **Response:** up to 3 CSV rows, no header; plain text
 
----
+## Request
 
-## 🔗 Full Request
+```
+GET https://netapi.com/api2/?method=lookup-ip&ip={ip}&token={token}
+```
 
-GET https://netapi.com/api2/?method=lookup-ip&ip=1.2.3.4&token=YOUR_API_KEY
+| Parameter | Required | Description |
+|---|---|---|
+| `ip` | yes | IPv4 or IPv6 address, e.g. `172.67.69.160`. Maximum length 99 characters. |
+| `token` | yes | Your API token |
 
----
+## Response
 
-## 🔧 Required Parameters
+One line per domain, at most three lines:
 
-- ip — IPv4 address to look up (e.g. 1.2.3.4)
-- token — your API key
+```
+url,hostname,dns1,dns2
+```
 
----
+| Field | Description |
+|---|---|
+| `url` | Domain hosted on the IP. |
+| `hostname` | Web-server hostname recorded for that domain. |
+| `dns1`, `dns2` | Authoritative nameservers of the domain; `dns2` is empty if only one is known. |
 
-## 📄 Output Format (CSV)
+Example (illustrative values):
 
-Each line corresponds to one domain mapped to the input IP:
+```
+example.com,web1.example.com,ns1.example.com,ns2.example.com
+example-shop.com,web1.example.com,ns1.example.com,ns2.example.com
+```
 
-DOMAIN,HOSTNAME,DNS1,DNS2
+If no domain is known for the IP the response body is the text `NOT FOUND` with HTTP status 200.
 
-### Field Descriptions:
+## Errors
 
-| Field      | Description                      |
-|------------|----------------------------------|
-| DOMAIN     | Domain associated with the IP    |
-| HOSTNAME   | Hostname pointing to the IP      |
-| DNS1, DNS2 | Nameservers                      |
+| HTTP | Message |
+|---|---|
+| 401 | `401 Unauthorized: Missing user token.` |
+| 403 | `403 Forbidden: Incorrect token.` |
+| 405 | `405 Method Not Allowed: Missing IP.` |
+| 405 | `405 Method Not Allowed: IP address is too long.` |
 
----
+## Examples
 
-## 🔍 Example Output
+cURL:
 
-example.com,host1.example.com,ns1.example.com,ns2.example.com  
-shop.net,cloud.shop.net,dns1.shop.net,dns2.shop.net
+```bash
+curl "https://netapi.com/api2/?method=lookup-ip&ip=172.67.69.160&token=YOUR_API_TOKEN"
+```
 
----
+Python:
 
-## 🧪 Usage Examples
-
-### cURL
-
-curl "https://netapi.com/api2/?method=lookup-ip&ip=1.2.3.4&token=YOUR_API_KEY"
-
-### Python
-
+```python
+import csv
+import io
 import requests
 
-url = "https://netapi.com/api2/"
-params = {
-    "method": "lookup-ip",
-    "ip": "1.2.3.4",
-    "token": "YOUR_API_KEY"
-}
+resp = requests.get(
+    "https://netapi.com/api2/",
+    params={"method": "lookup-ip", "ip": "172.67.69.160", "token": "YOUR_API_TOKEN"},
+    timeout=30,
+)
+resp.raise_for_status()
 
-resp = requests.get(url, params=params)
-
-if resp.status_code == 200:
-    print(resp.text.strip())
+if resp.text.strip() == "NOT FOUND":
+    print("no domains known for this IP")
 else:
-    print(f"Error {resp.status_code}: {resp.text}")
+    for url, hostname, dns1, dns2 in csv.reader(io.StringIO(resp.text)):
+        print(url, hostname, dns1, dns2)
+```
 
----
+## Notes
 
-## 📌 Notes
-
-- If multiple domains resolve to the same IP, multiple rows will be returned.
-- For bulk reverse DNS datasets, use `?method=download-ip` instead.
-- Supports only IPv4 at this time.
-
----
-
-Check our latest IP lookup API updates here: [https://netapi.com/help/api/](https://netapi.com/help/api/#lookup-ip-api)
+- The response is capped at three domains. For the complete set of domains on an IP — shared hosting and CDN addresses can carry thousands — download the [reverse-IP dataset](download-ip.md).
+- Results reflect the crawler index, not a live PTR query.
+- The same lookup is available in the browser at [netapi.com/lookup-ip/](https://netapi.com/lookup-ip/).
+- Web reference: [netapi.com/help/api/#lookup-ip-api](https://netapi.com/help/api/#lookup-ip-api).

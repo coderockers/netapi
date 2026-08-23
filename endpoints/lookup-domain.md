@@ -1,80 +1,92 @@
-# Endpoint: `?method=lookup-domain`
+# `lookup-domain` — details of one domain
 
-Performs a domain-level lookup and returns DNS and network metadata associated with a given domain.
+Returns what NetAPI knows about a single registered domain: nameservers, web-server hostname, IP and country, registration and expiration dates, and the registrar.
 
-The response is returned in plain-text CSV format (one line per domain).
+- **Authentication:** `token` (any account, no paid plan required)
+- **Response:** one CSV row, no header; plain text
 
----
+## Request
 
-## 🔗 Full Request
+```
+GET https://netapi.com/api2/?method=lookup-domain&domain={domain}&token={token}
+```
 
-GET https://netapi.com/api2/?method=lookup-domain&domain=example.com&token=YOUR_API_KEY
+| Parameter | Required | Description |
+|---|---|---|
+| `domain` | yes | Registered domain name, e.g. `example.com` or `example.co.uk`. Subdomains, schemes and paths are not accepted; the TLD must be one of the zones in [`zones`](zones.md). Maximum length 199 characters. |
+| `token` | yes | Your API token |
 
----
+## Response
 
-## 🔧 Required Parameters
+A single line with nine comma-separated fields:
 
-- domain — fully qualified domain name (e.g. example.com)
-- token — your API key
+```
+url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id
+```
 
----
+| Field | Description |
+|---|---|
+| `url` | The requested domain. |
+| `dns1`, `dns2` | Authoritative nameservers; `dns2` is empty if only one is known. |
+| `hostname` | Hostname of the web server. |
+| `ip` | IP address of the web server. |
+| `ip_country` | Two-letter country code of the server IP. |
+| `registered_at` | Registration date, `YYYY-MM-DD`; empty if unknown. |
+| `expiring_at` | Expiration date, `YYYY-MM-DD`; empty if unknown. |
+| `registrar_id` | Numeric registrar ID; resolve it with [`registrars`](registrars.md). Empty if unknown. |
 
-## 📄 Output Format (CSV)
+Example (illustrative values):
 
-Single-line CSV response:
+```
+example.com,ns1.example.com,ns2.example.com,web1.example.com,203.0.113.10,US,2015-08-14,2027-08-13,146
+```
 
-URL,DNS1,DNS2,HOSTNAME,IP,COUNTRY_CODE
+If the domain is not in the database the response body is the text `NOT FOUND` with HTTP status 200.
 
-### Field Descriptions:
+## Errors
 
-| Field         | Description                                      |
-|---------------|--------------------------------------------------|
-| `URL`         | The input domain name                            |
-| `DNS1`, `DNS2`| Nameservers                                      |
-| `HOSTNAME`    | Associated hostname                              |
-| `IP`          | Main resolved IP address                         |
-| `COUNTRY_CODE`| ISO 2-letter country code of the IP geolocation  |
+| HTTP | Message |
+|---|---|
+| 401 | `401 Unauthorized: Missing user token.` |
+| 403 | `403 Forbidden: Incorrect token.` |
+| 405 | `405 Method Not Allowed: Missing domain name.` |
+| 405 | `405 Method Not Allowed: Invalid domain zone.` — the TLD is not a supported zone |
+| 405 | `405 Method Not Allowed: Domain name is too long.` |
 
----
+## Examples
 
-## 🔍 Example Output
+cURL:
 
-example.com,dns1.example.com,dns2.example.com,host.example.com,1.2.3.4,US
+```bash
+curl "https://netapi.com/api2/?method=lookup-domain&domain=example.com&token=YOUR_API_TOKEN"
+```
 
----
+Python:
 
-## 🧪 Usage Examples
-
-### cURL
-
-curl "https://netapi.com/api2/?method=lookup-domain&domain=example.com&token=YOUR_API_KEY"
-
-### Python
-
+```python
+import csv
 import requests
 
-url = "https://netapi.com/api2/"
-params = {
-    "method": "lookup-domain",
-    "domain": "example.com",
-    "token": "YOUR_API_KEY"
-}
+FIELDS = ["url", "dns1", "dns2", "hostname", "ip", "ip_country",
+          "registered_at", "expiring_at", "registrar_id"]
 
-resp = requests.get(url, params=params)
+resp = requests.get(
+    "https://netapi.com/api2/",
+    params={"method": "lookup-domain", "domain": "example.com", "token": "YOUR_API_TOKEN"},
+    timeout=30,
+)
+resp.raise_for_status()
 
-if resp.status_code == 200:
-    print(resp.text.strip())
+if resp.text.strip() == "NOT FOUND":
+    print("not in database")
 else:
-    print(f"Error {resp.status_code}: {resp.text}")
+    row = next(csv.reader([resp.text.strip()]))
+    print(dict(zip(FIELDS, row)))
+```
 
----
+## Notes
 
-## 📌 Notes
-
-- This method returns only one line per request.
-- Bulk lookups are not supported in this method.
-- Useful for resolving domains into infrastructure-level data.
-
----
-
-Check our latest Domain Lookup API updates here: [https://netapi.com/help/api/](https://netapi.com/help/api/#lookup-domain-api)
+- One domain per request; there is no bulk variant. For many domains use the [`download`](download.md) datasets.
+- Values reflect the last crawl of the domain, not a live DNS query.
+- The same lookup is available in the browser at [netapi.com/lookup-domain/](https://netapi.com/lookup-domain/).
+- Web reference: [netapi.com/help/api/#lookup-domain-api](https://netapi.com/help/api/#lookup-domain-api).

@@ -1,217 +1,318 @@
 openapi: 3.0.3
 info:
-  title: NetAPI
+  title: NetAPI — Domain Data API
   version: 2.0.0
-  description: Public API for accessing registered domain lists, lists of domains using particular DNS provider, and threat intelligence datasets
-    via CSV.
+  description: |
+    NetAPI serves daily-updated domain data as CSV: full domain lists and
+    detailed datasets for more than 1,500 TLDs, newly registered and deleted
+    domains, domains grouped by DNS provider or registrar, a reverse-IP
+    dataset, single-domain and single-IP lookups, and free threat-intelligence
+    feeds.
+
+    All API operations share one path, `GET /api2/`, and are selected with
+    the `method` query parameter. The other parameters depend on the method;
+    see the `method` description and the per-endpoint documentation in the
+    `endpoints/` directory of this repository.
+
+    Errors are returned as a short plain-text message whose text starts with
+    the HTTP status code, e.g. `403 Forbidden: No active/paid plan.`
+  contact:
+    name: NetAPI support
+    url: https://netapi.com/contact-us/
+  termsOfService: https://netapi.com/tos/
+  license:
+    name: NetAPI Terms of Service (paid data); CC BY 4.0 (free datasets)
+    url: https://netapi.com/tos/
+externalDocs:
+  description: Web API reference
+  url: https://netapi.com/help/api/
+
 servers:
-- url: https://netapi.com/api2/
-  description: Production server
+  - url: https://netapi.com
+    description: Production
+
+tags:
+  - name: reference
+    description: Free lists of zones, DNS providers and registrars
+  - name: samples
+    description: Free 10-row samples of paid datasets
+  - name: downloads
+    description: Full CSV downloads (token + active plan)
+  - name: lookups
+    description: Single-domain and single-IP lookups (token)
+  - name: threat-intelligence
+    description: Free compromised-domain and compromised-IP feeds
+  - name: free-datasets
+    description: Free datasets served outside /api2/
+
 paths:
-  /:
+  /api2/:
     get:
-      summary: List supported zones
-      description: Returns all supported TLDs and zone metadata.
+      operationId: api2
+      summary: Call an API method
+      description: |
+        Selects the operation with `method`. Required parameters per method:
+
+        | method | required | optional | auth |
+        |---|---|---|---|
+        | `zones` | — | — | none |
+        | `dns` | — | — | none |
+        | `registrars` | — | — | none |
+        | `sample` | `zone_tld`, `dataset_type` | — | none |
+        | `sample-whois` | `registrar_id`, `dataset_type` | — | none |
+        | `download` | `zone_tld`, `dataset_type`, `filter_type`, `token` | `format` | token + plan |
+        | `download-dns` | `dns_alias`, `dataset_type`, `token` | `format` | token + plan |
+        | `download-whois` | `registrar_id`, `dataset_type`, `token` | `format` | token + plan |
+        | `download-ip` | `token` | `format` | token + plan |
+        | `lookup-domain` | `domain`, `token` | — | token |
+        | `lookup-ip` | `ip`, `token` | — | token |
+        | `compromised` | `dataset_type` (`ip`, `url`, `ip-all`, `url-all`) | — | none |
+        | `compromised-zone` | `zone_tld` | — | none |
+
+        `dataset_type=dataset` on any download method requires the Plus plan or higher.
+      tags: [reference, samples, downloads, lookups, threat-intelligence]
+      security:
+        - {}
+        - apiToken: []
       parameters:
-      - name: method
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - zones
+        - name: method
+          in: query
+          required: true
+          description: API method to call.
+          schema:
+            type: string
+            enum:
+              - zones
+              - dns
+              - registrars
+              - sample
+              - sample-whois
+              - download
+              - download-dns
+              - download-whois
+              - download-ip
+              - lookup-domain
+              - lookup-ip
+              - compromised
+              - compromised-zone
+        - name: token
+          in: query
+          required: false
+          description: |
+            API token from https://netapi.com/dashboard/. Required by `download*`
+            and `lookup-*` methods; ignored by the free methods.
+          schema:
+            type: string
+        - name: zone_tld
+          in: query
+          required: false
+          description: |
+            TLD without the leading dot (`com`, `de`, `co.uk`; punycode for IDN
+            zones such as `xn--p1ai`). `download` also accepts `all-zones`.
+            Valid values come from `method=zones`.
+          schema:
+            type: string
+          example: de
+        - name: dataset_type
+          in: query
+          required: false
+          description: |
+            For `download`, `download-dns`, `download-whois`, `sample`,
+            `sample-whois`: `list` (one domain per line) or `dataset` (domain
+            plus metadata).
+
+            For `compromised`: `url` (current domains), `ip` (current IPs),
+            `url-all` (all domains ever listed), `ip-all` (all IPs ever listed).
+          schema:
+            type: string
+            enum: [list, dataset, url, ip, url-all, ip-all]
+        - name: filter_type
+          in: query
+          required: false
+          description: |
+            `download` only. `active` — all registered domains; `new` — domains
+            first seen in the last 24 hours; `deleted` — domains that dropped
+            out in the last 24 hours. `new` and `deleted` exist only for zones
+            with `isUpdatedDaily=1`.
+          schema:
+            type: string
+            enum: [active, new, deleted]
+        - name: dns_alias
+          in: query
+          required: false
+          description: "`download-dns` only. Provider alias from `method=dns`, e.g. `cloudflare`."
+          schema:
+            type: string
+          example: cloudflare
+        - name: registrar_id
+          in: query
+          required: false
+          description: "`download-whois` and `sample-whois`. Numeric registrar ID from `method=registrars`, e.g. `146` for GoDaddy.com, LLC."
+          schema:
+            type: integer
+          example: 146
+        - name: domain
+          in: query
+          required: false
+          description: "`lookup-domain` only. Registered domain name, e.g. `example.com`. Maximum 199 characters."
+          schema:
+            type: string
+            maxLength: 199
+          example: example.com
+        - name: ip
+          in: query
+          required: false
+          description: "`lookup-ip` only. IPv4 or IPv6 address. Maximum 99 characters."
+          schema:
+            type: string
+            maxLength: 99
+          example: 172.67.69.160
+        - name: format
+          in: query
+          required: false
+          description: "Download methods only. `plain` returns uncompressed CSV instead of `.csv.gz`. Plain files for large zones are several gigabytes."
+          schema:
+            type: string
+            enum: [plain]
       responses:
         '200':
-          description: CSV list of zones
+          description: |
+            Success. The body depends on the method:
+
+            * `zones`, `dns`, `registrars` — CSV with a header row (`text/html; charset=UTF-8` is sent as content type; treat the body as CSV).
+            * `sample`, `sample-whois` — CSV file with a header row and 10 data rows.
+            * `download*` — CSV file, gzip-compressed unless `format=plain`, served with a `Content-Disposition` filename.
+            * `lookup-domain` — one CSV row without header (`url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id`), or the text `NOT FOUND`.
+            * `lookup-ip` — up to 3 CSV rows without header (`url,hostname,dns1,dns2`), or the text `NOT FOUND`.
+            * `compromised`, `compromised-zone` — one `#` comment line followed by one domain or IP per line.
           content:
-            text/csv: {}
-  /download:
+            text/csv:
+              schema:
+                type: string
+              examples:
+                zones:
+                  summary: method=zones
+                  value: |
+                    zoneTLD,isUpdatedDaily,isCountryCode
+                    com,1,0
+                    de,1,1
+                dns:
+                  summary: method=dns
+                  value: |
+                    alias,title,total
+                    cloudflare,"Cloudflare",38002618
+                registrars:
+                  summary: method=registrars
+                  value: |
+                    id,name,brand_name,total
+                    146,"GoDaddy.com, LLC","GoDaddy",65992964
+                zoneDataset:
+                  summary: download / sample, dataset_type=dataset
+                  value: |
+                    url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
+                    example.de,8421,ns1.example.de,ns2.example.de,web1.example.de,"info@example.de,sales@example.de",+49-30-1234567,203.0.113.10,DE
+                registrarDataset:
+                  summary: download-whois / sample-whois, dataset_type=dataset
+                  value: |
+                    registrar,url,registered_at,expiring_at,majestic_rank,emails,phones,ip,ip_country
+                    "GoDaddy.com, LLC",themis.abogado,2025-03-12,2027-03-12,,info@themis.abogado,,34.174.62.87,US
+                ip2domain:
+                  summary: download-ip
+                  value: |
+                    IP,domains
+                    203.0.113.10,"example.de,example-shop.de"
+                lookupDomain:
+                  summary: lookup-domain
+                  value: |
+                    example.com,ns1.example.com,ns2.example.com,web1.example.com,203.0.113.10,US,2015-08-14,2027-08-13,146
+                lookupIp:
+                  summary: lookup-ip
+                  value: |
+                    example.com,web1.example.com,ns1.example.com,ns2.example.com
+                compromised:
+                  summary: compromised, dataset_type=url
+                  value: |
+                    # Current compromised URLs (2026-08-23).
+                    000359.xyz
+                    00zyku.com
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              examples:
+                gzip:
+                  summary: download*, default gzip response
+                  description: A `.csv.gz` file with the CSV shown in the text/csv examples.
+        '401':
+          description: "`401 Unauthorized: Missing user token.`"
+          content:
+            text/plain:
+              schema:
+                type: string
+        '403':
+          description: |
+            One of:
+            * `403 Forbidden: Incorrect token.`
+            * `403 Forbidden: No active/paid plan.`
+            * `403 Forbidden: Your current plan does not allow downloading of detailed datasets.`
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: "`404 Not Found: File not found. Please contact the server administrator.` — the requested file does not exist (e.g. `new` for a monthly zone)."
+          content:
+            text/plain:
+              schema:
+                type: string
+        '405':
+          description: |
+            Missing or invalid `method` or parameter, e.g.
+            `405 Method Not Allowed: Missing API method.`,
+            `405 Method Not Allowed: Unsupported method (x).`,
+            `405 Method Not Allowed: Invalid zone tld.`,
+            `405 Method Not Allowed: Missing dataset type.`
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /netapi_top1mln.csv:
     get:
-      summary: Download list of registered domains for any zone including optional domain metadata (emails, phones, IPs, DNS, Country, etc).
+      operationId: top1m
+      tags: [free-datasets]
+      summary: NetAPI Top 1 Million — free daily ranking of the most popular domains
+      description: |
+        Plain CSV with a header row and 1,000,000 data rows
+        (`NetAPI_Rank,Domain`), rebuilt daily, about 22 MB. Licensed under
+        CC BY 4.0. Methodology: https://netapi.com/top-1-mln-websites/
+      externalDocs:
+        url: https://netapi.com/top-1-mln-websites/
+      security: []
       parameters:
-      - name: method
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - download
-      - name: zone_tld
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: dataset_type
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - list
-          - dataset
-      - name: filter_type
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - active
-          - new
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: format
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - plain
+        - name: token
+          in: query
+          required: false
+          description: Optional API token; associates the download with your account in the request log. Does not change the response.
+          schema:
+            type: string
       responses:
         '200':
-          description: CSV file containing domains or metadata
+          description: The ranking.
           content:
-            text/csv: {}
-  /download-dns:
-    get:
-      summary: Download list of domains using particular DNS provider
-      parameters:
-      - name: method
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - download-dns
-      - name: dns_alias
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: dataset_type
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - list
-          - dataset
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: format
-        in: query
-        required: false
-        schema:
-          type: string
-          enum:
-          - plain
-      responses:
-        '200':
-          description: CSV file of domains using specified DNS provider
-          content:
-            text/csv: {}
-  /lookup-domain:
-    get:
-      summary: Lookup domain metadata
-      parameters:
-      - name: method
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - lookup-domain
-      - name: domain
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: CSV with domain metadata
-          content:
-            text/csv: {}
-  /lookup-ip:
-    get:
-      summary: Lookup domains for IP
-      parameters:
-      - name: method
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - lookup-ip
-      - name: ip
-        in: query
-        required: true
-        schema:
-          type: string
-          format: ipv4
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: CSV with domains associated to the IP
-          content:
-            text/csv: {}
-  /dns:
-    get:
-      summary: List DNS providers
-      parameters:
-      - name: method
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - dns
-      responses:
-        '200':
-          description: CSV of known & supported DNS provider aliases
-          content:
-            text/csv: {}
-  /compromised:
-    get:
-      summary: Get compromised IPs or Domains
-      parameters:
-      - name: method
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - compromised
-      - name: dataset_type
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - ip
-          - ip-all
-          - url
-          - url-all
-      - name: token
-        in: query
-        required: false
-        schema:
-          type: string
-      responses:
-        '200':
-          description: CSV with compromised data
-          content:
-            text/csv: {}
+            text/csv:
+              schema:
+                type: string
+              example: |
+                NetAPI_Rank,Domain
+                1,google.com
+                2,microsoft.com
+                3,apple.com
+
+components:
+  securitySchemes:
+    apiToken:
+      type: apiKey
+      in: query
+      name: token
+      description: API token from https://netapi.com/dashboard/

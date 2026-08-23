@@ -1,87 +1,91 @@
-# Endpoint: `?method=download-dns`
+# `download-dns` — domains by DNS provider
 
-Downloads a domain dataset filtered by DNS provider. The response is in CSV format and is GZIP-compressed by default.
+Downloads every domain whose authoritative nameservers belong to a given DNS provider — for example all domains on Cloudflare, Amazon Route 53 or GoDaddy nameservers — across all zones, as a list or as a detailed dataset.
 
----
+- **Authentication:** `token` + active paid plan. `dataset_type=dataset` requires the Plus plan or higher.
+- **Response:** gzip-compressed CSV file (`.csv.gz`) with a header row; plain CSV with `format=plain`
 
-## 🔗 Full Request
+## Request
 
-GET https://netapi.com/api2/?method=download-dns&dns_alias=...&dataset_type=...&token=...
+```
+GET https://netapi.com/api2/?method=download-dns&dns_alias={alias}&dataset_type={list|dataset}&token={token}[&format=plain]
+```
 
----
+| Parameter | Required | Description |
+|---|---|---|
+| `dns_alias` | yes | Provider alias from [`dns`](dns.md), e.g. `cloudflare`, `godaddy`, `google`. |
+| `dataset_type` | yes | `list` — one domain per line · `dataset` — domain plus metadata |
+| `token` | yes | Your API token |
+| `format` | no | `plain` — uncompressed CSV (the Cloudflare dataset alone is several gigabytes uncompressed) |
 
-## 🔧 Required Parameters
+## Response
 
-- dns_alias — DNS provider alias (see `?method=dns`)
-- dataset_type — "list" or "dataset"
-- token — your API key
+Filename `{alias}_list.csv.gz` or `{alias}_dataset.csv.gz`.
 
-### Optional Parameters
+`dataset_type=list`:
 
-- format — "plain" for uncompressed output (default: gzip)
+```
+url
+example.com
+example.org
+```
 
----
+`dataset_type=dataset` — same columns as the zone datasets:
 
-## 📄 Output Format (CSV)
+```
+url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
+example.com,1203,ada.ns.cloudflare.com,rob.ns.cloudflare.com,,"hello@example.com",,104.21.5.77,US
+```
 
-By default, response is GZIP-compressed CSV file.
+Column descriptions: [download.md](download.md#dataset-columns). `dns1`/`dns2` always point to the requested provider's nameservers; `hostname` is frequently empty for domains behind a CDN.
 
-### For `dataset_type=list`
+## Errors
 
-Each line contains a domain using the specified DNS provider:
-example-cloudflare.com  
-my-site.cloudflare.de  
-shop.cloudflare.net  
+| HTTP | Message |
+|---|---|
+| 401 | `401 Unauthorized: Missing user token.` |
+| 403 | `403 Forbidden: Incorrect token.` |
+| 403 | `403 Forbidden: No active/paid plan.` |
+| 403 | `403 Forbidden: Your current plan does not allow downloading of detailed datasets.` |
+| 405 | `405 Method Not Allowed: Missing DNS alias.` / `Invalid DNS alias.` |
+| 405 | `405 Method Not Allowed: Missing dataset type.` / `Invalid dataset type.` |
+| 404 | `404 Not Found: File not found. …` |
 
-### For `dataset_type=dataset`
+## Examples
 
-CSV with additional metadata:
-DOMAIN,DNS1,DNS2,HOSTNAME,IP,COUNTRY_CODE  
-example.com,dns1.cloudflare.com,dns2.cloudflare.com,server.example.com,1.1.1.1,US
+cURL:
 
----
+```bash
+curl "https://netapi.com/api2/?method=download-dns&dns_alias=cloudflare&dataset_type=list&token=YOUR_API_TOKEN" \
+  -o cloudflare_list.csv.gz
+```
 
-## 🔍 Example Output (`dataset_type=dataset`)
+Python:
 
-example.com,dns1.cloudflare.com,dns2.cloudflare.com,server1.example.com,1.1.1.1,US  
-shop.io,dns1.cloudflare.com,,cloud.shop.io,1.1.1.2,US  
+```python
+import csv
+import gzip
+import requests
 
----
-
-## 🧪 Usage Examples
-
-### cURL
-
-curl "https://netapi.com/api2/?method=download-dns&dns_alias=cloudflare&dataset_type=list&token=YOUR_API_KEY" -o cloudflare_domains.csv.gz
-
-### Python
-
-import requests  
-import gzip  
-import io
-
-url = "https://netapi.com/api2/"
 params = {
     "method": "download-dns",
     "dns_alias": "cloudflare",
     "dataset_type": "dataset",
-    "token": "YOUR_API_KEY"
+    "token": "YOUR_API_TOKEN",
 }
 
-resp = requests.get(url, params=params)
-with gzip.open(io.BytesIO(resp.content), 'rt', encoding='utf-8') as f:
-    for i in range(10):
-        print(f.readline().strip())
+with requests.get("https://netapi.com/api2/", params=params, stream=True, timeout=600) as resp:
+    resp.raise_for_status()
+    with gzip.open(resp.raw, mode="rt", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader):
+            print(row["url"], row["dns1"])
+            if i == 9:
+                break
+```
 
----
+## Notes
 
-## 📌 Notes
-
-- Use `?method=dns` to get a list of supported `dns_alias` values.
-- Domains are grouped by authoritative DNS provider, not just hostname pattern.
-- Use `format=plain` if you need plain-text CSV output.
-- Metadata includes IP, DNS names, hostname, and country code.
-
----
-
-Check our latest Reverse DNS API updates here: [https://netapi.com/help/api/](https://netapi.com/help/api/#dns-api)
+- A domain is attributed to a provider by its nameserver hostnames (e.g. `*.ns.cloudflare.com`), not by the IP it resolves to. Domains whose nameservers match no known provider are not included in any DNS list.
+- Lists are rebuilt daily from all zones.
+- Web reference: [netapi.com/help/api/#dns-api](https://netapi.com/help/api/#dns-api); provider pages: [netapi.com/dns-providers/](https://netapi.com/dns-providers/).

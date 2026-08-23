@@ -1,127 +1,205 @@
-# NetAPI – Domain & DNS Dataset API (v2)
+# NetAPI — Domain Data API (v2)
 
-NetAPI offers powerful and daily-updated domain datasets via a lightweight API.
+[NetAPI](https://netapi.com/) provides daily-updated domain data as downloadable CSV files and a small set of lookup endpoints: full domain lists for more than 1,500 TLDs, detailed datasets (nameservers, hosting IP, country, emails, phone numbers, Majestic rank), newly registered domains, domains grouped by DNS provider or registrar, reverse-IP data, and free threat-intelligence feeds.
 
+This repository is the official companion to the API. It documents every endpoint, ships an OpenAPI specification and contains ready-to-run examples in cURL, Python and PHP.
 
-**CHECK OUR LATEST DOMAIN API UPDATES HERE:** [netapi.com/help/api](https://netapi.com/help/api/)
-
-
-📡 **Base endpoint:** `https://netapi.com/api2/`  
-🔄 Response format: comma-separated CSV (compressed by default)
-
-
----
-
-## 📋 Available Endpoints
-
-### 1. List all supported zones
-**GET** `?method=zones`
-
-[Detailed description](/endpoints/zones.md)
-
-Returns supported TLDs along with daily-update and country-code flags.  
-Example output: `com,1,0` (for `.com`) 
+- **Base URL:** `https://netapi.com/api2/`
+- **Transport:** HTTPS, `GET` only, parameters in the query string
+- **Response format:** CSV. Downloads are gzip-compressed (`.csv.gz`) unless you pass `format=plain`; list and lookup endpoints return plain text.
+- **Web documentation:** [netapi.com/help/api](https://netapi.com/help/api/) (always the most up-to-date reference) · [FAQ](https://netapi.com/help/faq/)
 
 ---
 
-### 2. Download domain lists / datasets
-**GET** `?method=download`
+## Quick start
 
-[Detailed description](/endpoints/download.md)
+```bash
+# 1. Which zones are available? (no token needed)
+curl "https://netapi.com/api2/?method=zones"
 
-**Query parameters:**
-- `zone_tld` *(required)* — e.g., `de`, `com`, or `all-zones` for all
-- `dataset_type` *(required)* — `list` (domains only) or `dataset` (with metadata)
-- `filter_type` *(required)* — `active` (all domains) or `new` (last 24 h; only for gTLDs)
-- `token` *(required)* — your API key
-- `format` *(optional)* — `plain` (GZ by default) 
+# 2. Try a free 10-row sample of the .com dataset
+curl "https://netapi.com/api2/?method=sample&zone_tld=com&dataset_type=dataset"
 
----
+# 3. Download the full .de domain list (requires a token and an active plan)
+curl "https://netapi.com/api2/?method=download&zone_tld=de&dataset_type=list&filter_type=active&token=YOUR_API_TOKEN" \
+  -o de_active_list.csv.gz
+```
 
-### 3. List supported DNS providers
-**GET** `?method=dns`
-
-[Detailed description](/endpoints/dns.md)
-
-Retrieve available DNS-provider aliases like `cloudflare` or `godaddy` 
+Get your API token in the [NetAPI dashboard](https://netapi.com/dashboard/) — sign up with an email address or a Google account, no password required.
 
 ---
 
-### 4. Download domains by DNS provider
-**GET** `?method=download-dns`
+## Endpoints
 
-[Detailed description](/endpoints/download-dns.md)
+All requests go to `https://netapi.com/api2/` and select the operation with the `method` query parameter.
 
-**Query parameters:**
-- `dns_alias` *(required)* — provider alias
-- `dataset_type`, `token`, and `format` as above 
+### Reference lists (free, no token)
 
----
+| Method | Description | Docs |
+|---|---|---|
+| `zones` | All supported TLDs with daily-update and ccTLD flags | [zones.md](endpoints/zones.md) |
+| `dns` | Supported DNS providers (aliases for `download-dns`) | [dns.md](endpoints/dns.md) |
+| `registrars` | Known registrars (IDs for `download-whois`) | [registrars.md](endpoints/registrars.md) |
 
+### Samples (free, no token)
 
-### 5. WHOIS API: List supported Registrars
-**GET** `?method=registrars`
+| Method | Description | Docs |
+|---|---|---|
+| `sample` | 10-row sample of a zone's list or dataset | [sample.md](endpoints/sample.md) |
+| `sample-whois` | 10-row sample of a registrar's list or dataset | [sample-whois.md](endpoints/sample-whois.md) |
 
-[Detailed description](/endpoints/registrars.md)
+### Downloads (token + active plan)
 
-Retrieve available Registrar's IDs (used in the 'download-whois' method listed below)
+| Method | Description | Docs |
+|---|---|---|
+| `download` | Domain list or dataset for one zone or all zones; active, new or deleted domains | [download.md](endpoints/download.md) |
+| `download-dns` | Domains that use a given DNS provider | [download-dns.md](endpoints/download-dns.md) |
+| `download-whois` | Domains registered with a given registrar, with registration and expiration dates | [download-whois.md](endpoints/download-whois.md) |
+| `download-ip` | Reverse-IP dataset: every known hosting IP with the domains behind it | [download-ip.md](endpoints/download-ip.md) |
 
----
+### Lookups (token)
 
-### 6. Download WHOIS (dataset of domains using the particular Registrar)
-**GET** `?method=download-whois`
+| Method | Description | Docs |
+|---|---|---|
+| `lookup-domain` | Nameservers, hosting IP, country, registration dates and registrar of one domain | [lookup-domain.md](endpoints/lookup-domain.md) |
+| `lookup-ip` | Domains hosted on one IP address (up to 3) | [lookup-ip.md](endpoints/lookup-ip.md) |
 
-[Detailed description](/endpoints/download-whois.md)
+### Threat intelligence (free, no token)
 
-**Query parameters:**
-- `registrar_id` *(required)* — provider id
-- `dataset_type`, `token`, and `format` as above 
+| Method | Description | Docs |
+|---|---|---|
+| `compromised` | Compromised domains or IP addresses — current (last 24 hours) or all-time | [compromised.md](endpoints/compromised.md) |
+| `compromised-zone` | Currently compromised domains in one TLD | [compromised-zone.md](endpoints/compromised-zone.md) |
 
----
+### Free datasets outside `/api2/`
 
-
-### 7. Domain lookup details
-**GET** `?method=lookup-domain`
-
-[Detailed description](/endpoints/lookup-domain.md)
-
-**Query parameters:**
-- `domain` *(required)*
-- `token` *(required)*
-
-Returns CSV with fields like `URL, DNS1, DNS2, HOSTNAME, IP, COUNTRY_CODE` 
-
----
-
-### 8. IP lookup details
-**GET** `?method=lookup-ip`
-
-[Detailed description](/endpoints/lookup-ip.md)
-
-**Query parameters:**
-- `ip` *(required)*
-- `token` *(required)*
-
-CSV fields: `DOMAIN, HOSTNAME, DNS1, DNS2` 
+| URL | Description | Docs |
+|---|---|---|
+| `https://netapi.com/netapi_top1mln.csv` | NetAPI Top 1 Million — a free daily ranking of the most popular domains | [top-1m.md](endpoints/top-1m.md) |
 
 ---
 
+## Authentication
 
-### 9. Compromised IPs & URLs
-**GET** `?method=compromised`
+Pass your token as the `token` query parameter:
 
-[Detailed description](/endpoints/compromised.md)
+```
+https://netapi.com/api2/?method=lookup-domain&domain=example.com&token=YOUR_API_TOKEN
+```
 
-**Query parameters:**
-- `dataset_type` *(required)* — `ip`, `url`, `ip-all`, or `url-all`
-- `token` *(required)* 
+- `zones`, `dns`, `registrars`, `sample`, `sample-whois`, `compromised`, `compromised-zone` and the Top 1M CSV need no token.
+- `lookup-domain` and `lookup-ip` need a valid token.
+- `download`, `download-dns`, `download-whois` and `download-ip` need a valid token **and an active paid plan**. Detailed datasets (`dataset_type=dataset`) require the Plus plan or higher; the Basic plan covers domain lists only. See [Plans](https://netapi.com/plans/).
+
+Keep your token private: it identifies your account, and every request made with it is logged against that account.
 
 ---
 
-## 🔐 Authentication
+## Parameters shared by several endpoints
 
-All endpoints except 'compromised' require a valid API token. You can obtain your API token in [NetAPI dashboard](https://netapi.com/dashboard/)
+| Parameter | Values | Used by |
+|---|---|---|
+| `dataset_type` | `list` — one domain per line · `dataset` — domain plus metadata | `download`, `download-dns`, `download-whois`, `sample`, `sample-whois` |
+| `filter_type` | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours · `deleted` — domains that disappeared in the last 24 hours | `download` |
+| `format` | `plain` — uncompressed CSV instead of `.csv.gz` | all `download-*` methods |
+| `token` | your API token | see Authentication |
 
-## 🔐 openapi.yaml
-📄 [OpenAPI Specification](./openapi.yaml)
+`new` and `deleted` are available only for zones that are updated daily (`isUpdatedDaily=1` in `zones`). Zones refreshed monthly support `active` only.
 
+---
+
+## Response format
+
+- Reference lists, samples and downloads are CSV with a header row. Fields that may contain commas (provider names, registrar names, email and phone lists) are double-quoted.
+- `lookup-domain` and `lookup-ip` return CSV rows **without** a header. When nothing is found they return the text `NOT FOUND` with HTTP 200.
+- `compromised` and `compromised-zone` return one entry per line, preceded by a single `#` comment line with the list name and date.
+- Downloads are served as `application/octet-stream` with a `Content-Disposition` filename, e.g. `de_active_list.csv.gz`.
+- Plain-text downloads can be very large (the `.com` dataset is several gigabytes uncompressed). Use `format=plain` only when you really need it.
+
+### Dataset columns
+
+Zone datasets (`download`, `download-dns`, `sample`):
+
+```
+url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
+```
+
+Registrar datasets (`download-whois`, `sample-whois`):
+
+```
+registrar,url,registered_at,expiring_at,majestic_rank,emails,phones,ip,ip_country
+```
+
+| Column | Meaning |
+|---|---|
+| `url` | domain name |
+| `majestic_rank` | position in the Majestic Million; empty if not ranked |
+| `dns1`, `dns2` | authoritative nameservers |
+| `hostname` | hostname of the web server |
+| `emails`, `phones` | contact details found on the website; comma-separated inside one quoted field |
+| `ip` | web server IP address |
+| `ip_country` | two-letter country code of the server IP (geolocation) |
+| `registrar` | sponsoring registrar (legal entity name) |
+| `registered_at`, `expiring_at` | registration and expiration dates, `YYYY-MM-DD` |
+
+---
+
+## Errors
+
+Errors are returned as a short plain-text message with a matching HTTP status code:
+
+| HTTP | Message | Meaning |
+|---|---|---|
+| 401 | `401 Unauthorized: Missing user token.` | `token` is missing on an endpoint that requires it |
+| 403 | `403 Forbidden: Incorrect token.` | the token does not belong to any account |
+| 403 | `403 Forbidden: No active/paid plan.` | download requested without an active subscription |
+| 403 | `403 Forbidden: Your current plan does not allow downloading of detailed datasets.` | `dataset_type=dataset` on the Basic plan |
+| 404 | `404 Not Found: File not found. …` | the requested file is not on the server (for example, a zone that has no `new` list yet) |
+| 405 | `405 Method Not Allowed: Missing API method.` | `method` is missing |
+| 405 | `405 Method Not Allowed: Unsupported method (…).` | unknown `method` |
+| 405 | `405 Method Not Allowed: Missing …` / `Invalid …` | a required parameter is missing or has an unknown value |
+
+Each endpoint page lists the exact messages it can return.
+
+---
+
+## Examples
+
+| File | What it does |
+|---|---|
+| [examples/curl-example.sh](examples/curl-example.sh) | download a zone list with cURL |
+| [examples/curl-example-compromised.sh](examples/curl-example-compromised.sh) | fetch the current compromised-domain feed |
+| [examples/python-example.py](examples/python-example.py) | download a zone dataset and stream it row by row without unpacking to disk |
+| [examples/python-example-compromised.py](examples/python-example-compromised.py) | read the compromised feed |
+| [examples/python-example-top1m.py](examples/python-example-top1m.py) | load the Top 1M ranking and look up a domain's rank |
+| [examples/php-example.php](examples/php-example.php) | download and decompress a zone list in PHP |
+| [examples/php-example-compromised.php](examples/php-example-compromised.php) | read the compromised feed in PHP |
+
+---
+
+## OpenAPI
+
+[openapi.yaml](openapi.yaml) describes the API in OpenAPI 3.0 format. Because all operations share one path and are selected with the `method` parameter, the specification exposes a single `GET /api2/` operation whose `method` enum and parameter descriptions cover every endpoint, plus the Top 1M download.
+
+---
+
+## Data updates and coverage
+
+- Zones with `isUpdatedDaily=1` (most gTLDs and many ccTLDs) are refreshed every day; the rest are refreshed monthly.
+- DNS-provider and registrar datasets, the reverse-IP dataset, the compromised feeds and the Top 1M ranking are rebuilt daily.
+- `zones`, `dns` and `registrars` return live counts, so the numbers change from day to day.
+
+## Crawler
+
+Website metadata (hostname, emails, phone numbers) is collected by our crawler, which identifies itself as `NetAPI/1.1 (+https://netapi.com/bot.html)` and honours `robots.txt`. See [netapi.com/bot.html](https://netapi.com/bot.html) for details and opt-out instructions.
+
+## Licensing
+
+- Paid downloads and lookups are licensed under the [NetAPI Terms of Service](https://netapi.com/tos/).
+- The free datasets — the compromised feeds and the Top 1M ranking — are released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Please credit NetAPI with a link to `https://netapi.com/` when you use them.
+- The contents of this repository (documentation, specification, example code) are released under the [MIT License](LICENSE).
+
+## Support
+
+- Questions about the API or your account: [netapi.com/contact-us](https://netapi.com/contact-us/)
+- Mistakes in this documentation: open an issue or a pull request in this repository.

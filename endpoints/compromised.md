@@ -1,95 +1,83 @@
-# Endpoint: `?method=compromised`
+# `compromised` — compromised domains and IP addresses (free)
 
-Returns lists of compromised IPs or URLs collected from threat intelligence feeds.
+Returns NetAPI's threat-intelligence feed: domain names and IP addresses currently reported as compromised (phishing, malware distribution, botnet C2, spam infrastructure), or the complete history of everything ever listed.
 
-The response is returned as plain-text CSV.
+- **Authentication:** none
+- **Response:** plain text, one entry per line, served as a file download
+- **License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free for any use with attribution to NetAPI
 
----
+## Request
 
-## 🔗 Full Request
+```
+GET https://netapi.com/api2/?method=compromised&dataset_type={ip|url|ip-all|url-all}
+```
 
-GET https://netapi.com/api2/?method=compromised&dataset_type=...
+| `dataset_type` | Contents | Size (Aug 2026) |
+|---|---|---|
+| `url` | Domains seen on threat feeds in the last 24 hours — the **current** blocklist | ~300,000 |
+| `ip` | IP addresses seen in the last 24 hours — the **current** blocklist | ~45,000 |
+| `url-all` | Every domain ever listed since the feed started | ~1.1 million |
+| `ip-all` | Every IP address ever listed | ~1.9 million |
 
----
+## Response
 
-## 🔧 Required Parameters
+The first line is a comment with the list name and generation date; every following line is one domain or one IP address. There is no CSV header.
 
-- dataset_type — one of:
-  - `ip`       → recent compromised IPs (24h)
-  - `ip-all`   → full list of known compromised IPs
-  - `url`      → recent compromised URLs (24h)
-  - `url-all`  → full list of known malicious URLs
+`dataset_type=url` (filename `compromised_url.csv`):
 
----
+```
+# Current compromised URLs (2026-08-23).
+000359.xyz
+00zyku.com
+01.losbuhosweb.com.mx
+```
 
-## 📄 Output Format (CSV)
+`dataset_type=ip` (filename `compromised_ip.csv`):
 
-The format depends on the selected `dataset_type`.
+```
+# Current compromised IPs (2026-08-23).
+182.127.178.111
+61.52.45.140
+```
 
-### For `ip` / `ip-all`:
+Historical lists use the filenames `compromised_url_history.csv` and `compromised_ip_history.csv`.
 
-IP,DATE_REPORTED,SOURCE
+## Errors
 
-### For `url` / `url-all`:
+| HTTP | Message |
+|---|---|
+| 405 | `405 Method Not Allowed: Missing list type.` — `dataset_type` is missing |
+| 405 | `405 Method Not Allowed: Invalid list type.` |
 
-URL,DATE_REPORTED,SOURCE
+## Examples
 
----
+cURL — save today's domain blocklist:
 
-## 🔍 Example Output
+```bash
+curl -s "https://netapi.com/api2/?method=compromised&dataset_type=url" -o compromised_url.csv
+```
 
-**(dataset_type = ip):**
+Python — load the current domains into a set and check a few names:
 
-185.38.184.53,2025-06-20,abuse-db  
-94.102.51.200,2025-06-19,phishing-tracker  
+```python
+import requests
 
-**(dataset_type = url):**
+resp = requests.get(
+    "https://netapi.com/api2/", params={"method": "compromised", "dataset_type": "url"}, timeout=60
+)
+resp.raise_for_status()
 
-bad-site.com,2025-06-20,url-blacklist  
-fakebank.net,2025-06-19,phishing-reports
+blocked = {line.strip() for line in resp.text.splitlines() if line and not line.startswith("#")}
+print(len(blocked), "domains currently listed")
 
----
+for domain in ("example.com", "00zyku.com"):
+    print(domain, "LISTED" if domain in blocked else "clean")
+```
 
-## 🧪 Usage Examples
+## Notes
 
-### cURL
-
-curl "https://netapi.com/api2/?method=compromised&dataset_type=ip"
-
-### Python
-
-import requests  
-import csv  
-import io
-
-url = "https://netapi.com/api2/"
-params = {
-    "method": "compromised",
-    "dataset_type": "ip"  # or 'url', 'ip-all', 'url-all'
-}
-
-resp = requests.get(url, params=params)
-
-if resp.status_code == 200:
-    reader = csv.reader(io.StringIO(resp.text))
-    header = next(reader)
-    print("Header:", header)
-    for i, row in enumerate(reader):
-        print(row)
-        if i >= 9:
-            break
-else:
-    print(f"Error {resp.status_code}: {resp.text}")
-
----
-
-## 📌 Notes
-
-- `ip` and `url` return only the last 24 hours.
-- `ip-all` and `url-all` return the full threat database.
-- The `SOURCE` field indicates where the compromise was reported.
-- Response is not compressed.
-
----
-
-Check our latest Compromised Domain and IP API updates here: [https://netapi.com/help/api/](https://netapi.com/help/api/#compromised-api)
+- "Last 24 hours" means the entry was present on at least one of the upstream threat feeds within the last day. Entries drop off the current list as soon as they are no longer reported, which is why the current list is the one to use for blocking.
+- The `*-all` lists are historical. A domain or IP appearing there was listed at some point; it is not necessarily compromised now — in most cases it has been cleaned up or the domain has expired.
+- The `url` lists contain host names only (registered domains and, where reported, subdomains) — no schemes or paths.
+- Feeds are rebuilt daily. Per-zone breakdowns are available through [`compromised-zone`](compromised-zone.md); statistics and charts on [netapi.com/compromised-urls/](https://netapi.com/compromised-urls/) and [netapi.com/compromised-ips/](https://netapi.com/compromised-ips/); abuse research by TLD and registrar at [netapi.com/research/](https://netapi.com/research/).
+- Web reference: [netapi.com/help/api/#compromised-api](https://netapi.com/help/api/#compromised-api).
