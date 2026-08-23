@@ -2,7 +2,7 @@
 
 [NetAPI](https://netapi.com/) provides daily-updated domain data as downloadable CSV files and a small set of lookup endpoints: full domain lists for more than 1,500 TLDs, detailed datasets (nameservers, hosting IP, country, emails, phone numbers, Majestic rank), newly registered domains, domains grouped by DNS provider or registrar, and free threat-intelligence feeds.
 
-This repository is the official companion to the API. It documents every endpoint, ships an OpenAPI specification and contains ready-to-run examples in cURL, Python and PHP.
+This repository is the official companion to the API. It documents every endpoint, ships an OpenAPI specification and contains ready-to-run examples in cURL, Python, Node.js, Go and PHP.
 
 - **Base URL:** `https://netapi.com/api2/`
 - **Transport:** HTTPS, `GET` only, parameters in the query string
@@ -160,6 +160,10 @@ Each endpoint page lists the exact messages it can return.
 | [examples/python-example.py](examples/python-example.py) | download a zone dataset and stream it row by row without unpacking to disk |
 | [examples/python-example-compromised.py](examples/python-example-compromised.py) | read the compromised feed |
 | [examples/python-example-top1m.py](examples/python-example-top1m.py) | load the Top 1M ranking and look up a domain's rank |
+| [examples/node-example.js](examples/node-example.js) | download a zone list in Node.js 18+ and stream it through zlib (no dependencies) |
+| [examples/node-example-compromised.js](examples/node-example-compromised.js) | read the compromised feed in Node.js |
+| [examples/go-example.go](examples/go-example.go) | download a zone list in Go and stream it through `compress/gzip` (standard library only; `go run examples/go-example.go`) |
+| [examples/go-example-compromised.go](examples/go-example-compromised.go) | read the compromised feed in Go |
 | [examples/php-example.php](examples/php-example.php) | download and decompress a zone list in PHP |
 | [examples/php-example-compromised.php](examples/php-example-compromised.php) | read the compromised feed in PHP |
 
