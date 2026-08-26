@@ -16,7 +16,7 @@ $params = [
     'method'       => 'download',
     'zone_tld'     => 'net',      // any TLD from ?method=zones, or 'all-zones'
     'dataset_type' => 'list',     // 'list' or 'dataset'
-    'filter_type'  => 'active',   // 'active', 'new' or 'deleted'
+    'filter_type'  => 'active',   // 'active' or 'new'
     'token'        => $token,
 ];
 

@@ -42,7 +42,7 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 
 | Method | Description | Docs |
 |---|---|---|
-| `download` | Domain list or dataset for one zone or all zones; active, new or deleted domains | [download.md](endpoints/download.md) |
+| `download` | Domain list or dataset for one zone or all zones; all active or only new domains | [download.md](endpoints/download.md) |
 | `download-dns` | Domains that use a given DNS provider | [download-dns.md](endpoints/download-dns.md) |
 | `download-whois` | Domains registered with a given registrar, with registration and expiration dates | [download-whois.md](endpoints/download-whois.md) |
 
@@ -88,11 +88,11 @@ Keep your token private: it identifies your account, and every request made with
 | Parameter | Values | Used by |
 |---|---|---|
 | `dataset_type` | `list` — one domain per line · `dataset` — domain plus metadata | `download`, `download-dns`, `download-whois` |
-| `filter_type` | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours · `deleted` — domains that disappeared in the last 24 hours | `download` |
+| `filter_type` | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours | `download` |
 | `format` | `plain` — uncompressed CSV instead of `.csv.gz` | `download`, `download-dns`, `download-whois` |
 | `token` | your API token | see Authentication |
 
-`new` and `deleted` are available only for zones that are fully refreshed daily (`isUpdatedDaily=1` in `zones`). Other zones support `active` only.
+`new` is available only for zones that are fully refreshed daily (`isUpdatedDaily=1` in `zones`). Other zones support `active` only.
 
 ---
 
@@ -177,7 +177,7 @@ Each endpoint page lists the exact messages it can return.
 
 ## Data updates and coverage
 
-- Zones with `isUpdatedDaily=1` (the gTLDs and a few ccTLDs) are fully refreshed every day, and their `new` and `deleted` lists are available.
+- Zones with `isUpdatedDaily=1` (the gTLDs and a few ccTLDs) are fully refreshed every day, and their `new` lists are available.
 - Zones with `isUpdatedDaily=0` (most ccTLDs, including large ones such as `.de` or `.uk`) get partial updates every day and a full refresh every one to two months. Only the `active` list is available for these zones.
 - DNS-provider and registrar datasets, the compromised feeds and the Top 1M ranking are rebuilt daily.
 - `zones`, `dns` and `registrars` return live counts, so the numbers change from day to day.

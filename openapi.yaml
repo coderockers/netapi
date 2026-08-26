@@ -4,8 +4,8 @@ info:
   version: 2.0.0
   description: |
     NetAPI serves daily-updated domain data as CSV: full domain lists and
-    detailed datasets for more than 1,500 TLDs, newly registered and deleted
-    domains, domains grouped by DNS provider or registrar, single-domain and single-IP lookups, and free threat-intelligence
+    detailed datasets for more than 1,500 TLDs, newly registered domains,
+    domains grouped by DNS provider or registrar, single-domain and single-IP lookups, and free threat-intelligence
     feeds.
 
     All API operations share one path, `GET /api2/`, and are selected with
@@ -121,12 +121,11 @@ paths:
           required: false
           description: |
             `download` only. `active` — all registered domains; `new` — domains
-            first seen in the last 24 hours; `deleted` — domains that dropped
-            out in the last 24 hours. `new` and `deleted` exist only for zones
-            with `isUpdatedDaily=1` (fully refreshed daily).
+            first seen in the last 24 hours. `new` exists only for zones with
+            `isUpdatedDaily=1` (fully refreshed daily).
           schema:
             type: string
-            enum: [active, new, deleted]
+            enum: [active, new]
         - name: dns_alias
           in: query
           required: false

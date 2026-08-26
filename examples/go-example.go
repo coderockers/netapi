@@ -26,7 +26,7 @@ func main() {
 	params.Set("method", "download")
 	params.Set("zone_tld", "net")       // any TLD from ?method=zones, or "all-zones"
 	params.Set("dataset_type", "list")  // "list" or "dataset"
-	params.Set("filter_type", "active") // "active", "new" or "deleted"
+	params.Set("filter_type", "active") // "active" or "new"
 	params.Set("token", apiToken)
 
 	resp, err := http.Get(apiURL + "?" + params.Encode())

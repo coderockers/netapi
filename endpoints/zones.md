@@ -2,7 +2,7 @@
 
 Returns every TLD available in NetAPI together with two flags: whether the zone is refreshed daily and whether it is a country-code TLD.
 
-Use it to discover valid `zone_tld` values for [`download`](download.md) and [`compromised-zone`](compromised-zone.md), and to find out which zones support the `new` and `deleted` filters.
+Use it to discover valid `zone_tld` values for [`download`](download.md) and [`compromised-zone`](compromised-zone.md), and to find out which zones support the `new` filter.
 
 - **Authentication:** none
 - **Parameters:** none
@@ -23,7 +23,7 @@ zoneTLD,isUpdatedDaily,isCountryCode
 | Column | Type | Description |
 |---|---|---|
 | `zoneTLD` | string | The top-level domain without the leading dot: `com`, `de`, `uk`. Only first-level TLDs are listed — second-level zones such as `co.uk` are part of `uk`. Internationalised TLDs are given in punycode, e.g. `xn--p1ai` for `.рф`. |
-| `isUpdatedDaily` | `0` / `1` | `1` — the zone is fully refreshed every day and supports the `new` and `deleted` filters in `download`; `0` — the zone gets partial updates daily and a full refresh every one to two months; `active` only. |
+| `isUpdatedDaily` | `0` / `1` | `1` — the zone is fully refreshed every day and supports the `new` filter in `download`; `0` — the zone gets partial updates daily and a full refresh every one to two months; `active` only. |
 | `isCountryCode` | `0` / `1` | `1` — country-code TLD (ccTLD); `0` — generic TLD (gTLD). |
 
 Example (the order of the lines is not significant):

@@ -1,6 +1,6 @@
 # `download` — domain lists and datasets by zone
 
-Downloads the full list of registered domains in a zone (or in all zones at once), optionally with metadata, or only the domains that were added or dropped in the last 24 hours.
+Downloads the full list of registered domains in a zone (or in all zones at once), optionally with metadata, or only the domains that were added in the last 24 hours.
 
 - **Authentication:** `token` + active paid plan. `dataset_type=dataset` requires the Plus plan or higher.
 - **Response:** gzip-compressed CSV file (`.csv.gz`) with a header row; plain CSV with `format=plain`
@@ -8,22 +8,22 @@ Downloads the full list of registered domains in a zone (or in all zones at once
 ## Request
 
 ```
-GET https://netapi.com/api2/?method=download&zone_tld={tld}&dataset_type={list|dataset}&filter_type={active|new|deleted}&token={token}[&format=plain]
+GET https://netapi.com/api2/?method=download&zone_tld={tld}&dataset_type={list|dataset}&filter_type={active|new}&token={token}[&format=plain]
 ```
 
 | Parameter | Required | Description |
 |---|---|---|
 | `zone_tld` | yes | First-level TLD without the leading dot (`com`, `net`, `uk`), punycode for IDN zones (`xn--p1ai`), or `all-zones` for one combined file of every zone. Valid values come from [`zones`](zones.md). |
 | `dataset_type` | yes | `list` — one domain per line · `dataset` — domain plus metadata (see columns below) |
-| `filter_type` | yes | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours · `deleted` — domains that dropped out of the zone in the last 24 hours |
+| `filter_type` | yes | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours |
 | `token` | yes | Your API token from the [dashboard](https://netapi.com/dashboard/) |
 | `format` | no | `plain` — uncompressed CSV. Plain files for large zones run to several gigabytes; use only when you cannot handle gzip. |
 
-`new` and `deleted` exist only for zones with `isUpdatedDaily=1` in `zones`. For the other zones request `active`.
+`new` exists only for zones with `isUpdatedDaily=1` in `zones`. For the other zones request `active`.
 
 ## Response
 
-The file is served as `application/octet-stream` with a `Content-Disposition` filename built from the request, for example `net_active_list.csv.gz`, `all-zones_new_dataset.csv.gz`, `com_deleted_list.csv`.
+The file is served as `application/octet-stream` with a `Content-Disposition` filename built from the request, for example `net_active_list.csv.gz` or `all-zones_new_dataset.csv.gz`.
 
 `dataset_type=list`:
 
@@ -68,7 +68,7 @@ Metadata is collected when the domain's website is crawled; fields are empty for
 | 405 | `405 Method Not Allowed: Invalid zone tld.` |
 | 405 | `405 Method Not Allowed: Missing dataset type.` / `Invalid dataset type.` |
 | 405 | `405 Method Not Allowed: Missing filter type.` / `Invalid filter type.` |
-| 404 | `404 Not Found: File not found. …` — the file does not exist, typically `new` or `deleted` requested for a zone with `isUpdatedDaily=0` |
+| 404 | `404 Not Found: File not found. …` — the file does not exist, typically `new` requested for a zone with `isUpdatedDaily=0` |
 
 ## Examples
 

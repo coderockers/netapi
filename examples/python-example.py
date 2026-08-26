@@ -19,7 +19,7 @@ params = {
     "method": "download",
     "zone_tld": "net",          # any TLD from ?method=zones, or "all-zones"
     "dataset_type": "dataset",  # "list" (domains only) or "dataset" (with metadata)
-    "filter_type": "active",    # "active", "new" or "deleted"
+    "filter_type": "active",    # "active" or "new"
     "token": API_TOKEN,
 }
 
