@@ -8,6 +8,7 @@ This repository is the official companion to the API. It documents every endpoin
 - **Transport:** HTTPS, `GET` only, parameters in the query string
 - **Response format:** CSV. Downloads are gzip-compressed (`.csv.gz`) unless you pass `format=plain`; list and lookup endpoints return plain text.
 - **Web documentation:** [netapi.com/help/api/](https://netapi.com/help/api/) (always the most up-to-date reference) · [FAQ](https://netapi.com/help/faq/)
+- **JSON and AI tools:** the same data as JSON at `https://netapi.com/api-json/` ([json-api.md](endpoints/json-api.md)); for Claude, ChatGPT, Cursor and other MCP clients there is the **NetAPI MCP server** `https://mcp.netapi.com/mcp` ([docs](https://netapi.com/help/mcp/) · [source](https://github.com/coderockers/netapi-mcp))
 
 ---
 
@@ -79,7 +80,7 @@ The same data as JSON documents, for integrations and AI tools: `GET https://net
 
 ### MCP server for AI assistants
 
-`https://mcp.netapi.com/mcp` exposes the JSON API as tools for Claude, ChatGPT, Cursor and any other MCP client (sign in with a NetAPI account; `/mcp/public` needs none). Docs: [netapi.com/help/mcp/](https://netapi.com/help/mcp/), source: [coderockers/netapi-mcp](https://github.com/coderockers/netapi-mcp).
+`https://mcp.netapi.com/mcp` exposes the JSON API as tools for Claude, ChatGPT, Cursor and any other MCP client: 9 free tools (compromised check, new-domain search, TLD / registrar / DNS-provider statistics, Top 1M ranks, zone list) and, with a plan, domain and IP lookups and download links. Sign in with a NetAPI account through the standard MCP OAuth flow, or use `/mcp/public` without an account (free tools only). Listed in the MCP Registry as `com.netapi/mcp`. Docs: [netapi.com/help/mcp/](https://netapi.com/help/mcp/), source and client setup: [coderockers/netapi-mcp](https://github.com/coderockers/netapi-mcp).
 
 ### Free datasets outside `/api2/`
 

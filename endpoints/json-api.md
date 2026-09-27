@@ -1,6 +1,6 @@
 # JSON API — `/api-json/`
 
-The same data as the CSV API, as JSON documents. Built for integrations and AI tools; the [NetAPI MCP server](https://netapi.com/help/mcp/) is a thin layer over these methods.
+The same data as the CSV API, as JSON documents. Built for integrations and AI tools; the [NetAPI MCP server](https://netapi.com/help/mcp/) (`https://mcp.netapi.com/mcp`, source: [coderockers/netapi-mcp](https://github.com/coderockers/netapi-mcp)) is a thin layer over these methods.
 
 ```
 GET https://netapi.com/api-json/?method=<method>&<parameters>
