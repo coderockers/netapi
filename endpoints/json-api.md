@@ -7,6 +7,8 @@ GET https://netapi.com/api-json/?method=<method>&<parameters>
 Authorization: Bearer YOUR_API_TOKEN        (optional for the free methods; or token=... in the query)
 ```
 
+The method can also be the path: `GET https://netapi.com/api-json/tld-stats/?tld=de` is the same call (one path per method; [`openapi-gpt.yaml`](../openapi-gpt.yaml) describes the JSON API this way for GPT Actions and other OpenAPI tools).
+
 Answers are JSON (`Content-Type: application/json`). Errors are JSON as well, with the matching HTTP status:
 
 ```json

@@ -1,0 +1,428 @@
+openapi: 3.1.0
+info:
+  title: NetAPI Domain Data (JSON API)
+  version: 1.0.0
+  description: |
+    Domain data from NetAPI as JSON: is a domain or IP in the compromised feed, newly registered domains that
+    contain a string, statistics of a TLD, registrar or DNS provider, the NetAPI Top 1M popularity ranking, and
+    (with a NetAPI plan) domain / IP lookups and download links for domain lists.
+
+    One operation per method (`/api-json/<method>`), built for GPT Actions and other OpenAPI-driven tools. The
+    free operations need no sign-in; a signed-in NetAPI account raises the request limits, a plan unlocks the
+    lookups and downloads. Errors are JSON: `{"error": {"code": "...", "message": "..."}}` with the matching HTTP
+    status (400 bad parameter, 401 sign-in needed, 403 plan needed, 404 not found, 429 limit reached with
+    `retry_after` seconds). Full reference: https://netapi.com/help/api/#json-api
+  contact:
+    name: NetAPI support
+    url: https://netapi.com/contact-us/
+  termsOfService: https://netapi.com/tos/
+externalDocs:
+  description: JSON API reference
+  url: https://netapi.com/help/api/#json-api
+
+servers:
+  - url: https://netapi.com
+
+# every operation may carry the sign-in; the free ones also work without it (anonymous limits)
+security:
+  - oauth: []
+
+paths:
+  /api-json/compromised-check:
+    get:
+      operationId: checkCompromised
+      summary: Is a domain or IP address in the NetAPI compromised feed (malware, phishing, abuse)?
+      description: Answers whether the value was seen in the feed in the last 24 hours (listed_now) or ever (listed_ever), with first / last seen dates, the block reason and the registrar. Subdomains are matched against their parent domains too. Free.
+      parameters:
+        - name: value
+          in: query
+          required: true
+          description: Domain name (also a URL or host name) or an IPv4 / IPv6 address.
+          schema: { type: string, example: example.com }
+      responses:
+        '200':
+          description: Check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value: { type: string }
+                  type: { type: string, enum: [domain, ip] }
+                  listed_now: { type: boolean, description: Seen in the feed within the last 24 hours }
+                  listed_ever: { type: boolean }
+                  matched_value: { type: [string, 'null'], description: The domain that matched (a parent domain for host names) }
+                  first_seen: { type: [string, 'null'] }
+                  last_seen: { type: [string, 'null'] }
+                  block_reason: { type: [string, 'null'] }
+                  registrar: { type: [object, 'null'] }
+                  note: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/search-new:
+    get:
+      operationId: searchNewDomains
+      summary: Newly registered domains of the last 1-7 days that contain (or start with) a string
+      description: Brand monitoring, typosquatting, phishing campaigns, keyword trends. Covers every TLD NetAPI updates daily. Free with limits (100 results per call without an account, more with an account or a plan).
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Text to look for in the domain name, at least 4 characters (letters, digits, dots, hyphens).
+          schema: { type: string, minLength: 4, maxLength: 100, example: crypto }
+        - name: days
+          in: query
+          description: How many days back, 1-7 (default 1 = the latest daily list).
+          schema: { type: integer, minimum: 1, maximum: 7, default: 1 }
+        - name: tld
+          in: query
+          description: Limit to one TLD without the dot, e.g. com.
+          schema: { type: string }
+        - name: match
+          in: query
+          description: contains (default) or starts (the domain name starts with the query).
+          schema: { type: string, enum: [contains, starts], default: contains }
+        - name: limit
+          in: query
+          description: Maximum results (default 50; the cap depends on the access level).
+          schema: { type: integer, minimum: 1, maximum: 5000, default: 50 }
+      responses:
+        '200':
+          description: Matching domains, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query: { type: string }
+                  days: { type: integer }
+                  since: { type: string }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        domain: { type: string }
+                        tld: { type: string }
+                        added_on: { type: string }
+                  count: { type: integer }
+                  truncated: { type: boolean, description: More matches exist than returned }
+                  note: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /api-json/tld-stats:
+    get:
+      operationId: getTldStats
+      summary: Statistics of one domain zone (TLD)
+      description: Registry, number of active domains, new and deleted domains in the last 24 hours, change over 7 / 30 / 90 / 365 days, rank among all zones, share of all domains, compromised domains, presence in the Top 1M, registry policies, RDAP server and a description. Free.
+      parameters:
+        - name: tld
+          in: query
+          required: true
+          description: TLD without the dot, e.g. com, de, xn--p1ai.
+          schema: { type: string, example: de }
+      responses:
+        '200':
+          description: Zone statistics
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/domain-rank:
+    get:
+      operationId: getDomainRank
+      summary: Popularity rank of a domain in the NetAPI Top 1M
+      description: Position of a domain in the NetAPI Top 1 Million most popular domains (1 = most popular) and its rank inside its own TLD. Free.
+      parameters:
+        - name: domain
+          in: query
+          required: true
+          schema: { type: string, example: github.com }
+      responses:
+        '200':
+          description: Rank
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  domain: { type: string }
+                  in_top_1m: { type: boolean }
+                  rank: { type: [integer, 'null'] }
+                  rank_in_tld: { type: [integer, 'null'] }
+                  tld_sites_in_top_1m: { type: [integer, 'null'] }
+                  snapshot_date: { type: [string, 'null'] }
+                  note: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/top-websites:
+    get:
+      operationId: getTopWebsitesOfTld
+      summary: The most popular websites of one TLD
+      description: A slice of the NetAPI Top 1M limited to one TLD (e.g. the top .de or .fr websites) with the global rank. Available for the ~80 TLDs with at least 1,000 domains in the Top 1M; offset + limit up to 1,000, the full slice is a free CSV linked in the answer. Free.
+      parameters:
+        - name: tld
+          in: query
+          required: true
+          schema: { type: string, example: de }
+        - name: limit
+          in: query
+          description: Rows to return (default 10, max 100 without an account).
+          schema: { type: integer, minimum: 1, maximum: 1000, default: 10 }
+        - name: offset
+          in: query
+          description: Rows to skip (default 0).
+          schema: { type: integer, minimum: 0, maximum: 999, default: 0 }
+      responses:
+        '200':
+          description: Top domains of the TLD
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tld: { type: string }
+                  sites_in_top_1m: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank_in_tld: { type: integer }
+                        rank: { type: integer }
+                        domain: { type: string }
+                  page: { type: string }
+                  csv: { type: string }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/top-1m:
+    get:
+      operationId: getTop1m
+      summary: A slice of the NetAPI Top 1M most popular domains
+      description: Domains ordered by rank, starting after `offset`. The complete list is a free daily CSV (https://netapi.com/netapi_top1mln.csv, CC BY 4.0). Free.
+      parameters:
+        - name: limit
+          in: query
+          description: Rows to return (default 10, max 100 without an account).
+          schema: { type: integer, minimum: 1, maximum: 1000, default: 10 }
+        - name: offset
+          in: query
+          description: Rank to start after (default 0).
+          schema: { type: integer, minimum: 0, maximum: 999999, default: 0 }
+      responses:
+        '200':
+          description: Slice of the ranking
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshot_date: { type: [string, 'null'] }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank: { type: integer }
+                        domain: { type: string }
+                  csv: { type: string }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/registrar-info:
+    get:
+      operationId: getRegistrarInfo
+      summary: Profile of a domain registrar
+      description: Number of domains, rank by size, compromised domains and abuse rate versus the overall rate, link to the registrar page. Matches by brand (GoDaddy), legal name or numeric id; other candidates are listed in other_matches. Free.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Registrar name, brand or id.
+          schema: { type: string, example: Namecheap }
+      responses:
+        '200':
+          description: Registrar profile
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/dns-provider-info:
+    get:
+      operationId: getDnsProviderInfo
+      summary: Profile and market share of a DNS (nameserver) provider
+      description: Number of domains using the provider, market share and rank, share change over 30 days and one year, one-year growth. Matches by alias (cloudflare), name or nameserver root (awsdns). Free.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Provider alias, name or nameserver root.
+          schema: { type: string, example: cloudflare }
+      responses:
+        '200':
+          description: Provider profile
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/zones:
+    get:
+      operationId: listZones
+      summary: Every domain zone (TLD) NetAPI tracks, with current figures
+      description: Active domains, new and deleted domains in the last 24 hours, ccTLD flag and whether the zone is updated daily, sorted by size. Filter by minimum size or ccTLD / gTLD. Free.
+      parameters:
+        - name: min_domains
+          in: query
+          description: Only zones with at least this many active domains.
+          schema: { type: integer, minimum: 0 }
+        - name: cctld
+          in: query
+          description: 1 = country-code zones only, 0 = generic zones only.
+          schema: { type: integer, enum: [0, 1] }
+      responses:
+        '200':
+          description: Zone list
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/me:
+    get:
+      operationId: getAccount
+      summary: The NetAPI account behind the sign-in, its plan and request limits
+      description: Needs a signed-in account. Shows the plan, the tier and the limits that apply to this account.
+      responses:
+        '200':
+          description: Account
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+
+  /api-json/lookup-domain:
+    get:
+      operationId: lookupDomain
+      summary: Domain lookup - nameservers, IP, country, registration and expiration dates, registrar
+      description: Needs a NetAPI account with an active plan (any plan); without one the answer is 401 / 403 with a link to https://netapi.com/plans/ - tell the user how to get access instead of retrying.
+      parameters:
+        - name: domain
+          in: query
+          required: true
+          schema: { type: string, example: example.com }
+      responses:
+        '200':
+          description: Domain data (found false when the domain is not in the dataset)
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/lookup-ip:
+    get:
+      operationId: lookupIp
+      summary: Reverse IP lookup - up to 3 domains hosted on an IP address
+      description: Needs a NetAPI account with an active plan.
+      parameters:
+        - name: ip
+          in: query
+          required: true
+          schema: { type: string, example: 93.184.216.34 }
+      responses:
+        '200':
+          description: Domains on the IP
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/download-url:
+    get:
+      operationId: getDownloadUrl
+      summary: A temporary download link (24 hours) for a domain list or dataset file
+      description: The full list of active domains of a zone, its new domains of the last 24 hours, its deleted domains, or the combined file of all zones; as a plain list or a dataset with DNS, IP, hostname, emails and phones. Needs an active plan (Plus or Pro for datasets). Give the user the returned URL; the file itself is not read through this API.
+      parameters:
+        - name: zone_tld
+          in: query
+          required: true
+          description: TLD without the dot, or all-zones.
+          schema: { type: string, example: net }
+        - name: dataset_type
+          in: query
+          required: true
+          schema: { type: string, enum: [list, dataset] }
+        - name: filter_type
+          in: query
+          required: true
+          description: active = all current domains, new = last 24 h, deleted = dropped out in the last 24 h (lists only).
+          schema: { type: string, enum: [active, new, deleted] }
+        - name: format
+          in: query
+          description: gz (default, gzip CSV) or plain.
+          schema: { type: string, enum: [gz, plain], default: gz }
+      responses:
+        '200':
+          description: Download link
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  download_url: { type: string }
+                  expires_at: { type: string }
+                  file_name: { type: string }
+                  size_bytes: { type: integer }
+                  file_date: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+components:
+  responses:
+    Error:
+      description: JSON error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code: { type: string, example: rate_limited }
+                  message: { type: string }
+                  retry_after: { type: integer, description: Seconds until the limit resets (429 only) }
+                  plans: { type: string, description: Where to get a plan (401 / 403 on plan-gated operations) }
+                additionalProperties: true
+  securitySchemes:
+    oauth:
+      type: oauth2
+      description: >-
+        Sign in with a NetAPI account (OAuth 2.0 authorization code; the authorization server is https://netapi.com).
+        A NetAPI API token in the Authorization header (Bearer) works as well.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://netapi.com/oauth/authorize
+          tokenUrl: https://netapi.com/oauth/token
+          refreshUrl: https://netapi.com/oauth/token
+          scopes:
+            netapi: Read NetAPI data with the account's plan and request limits

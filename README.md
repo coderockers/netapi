@@ -63,7 +63,7 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 
 ### JSON API (`/api-json/`)
 
-The same data as JSON documents, for integrations and AI tools: `GET https://netapi.com/api-json/?method=...`, token as `Authorization: Bearer YOUR_API_TOKEN` (or `token=`), errors as `{"error": {"code": "...", "message": "..."}}`. See [json-api.md](endpoints/json-api.md).
+The same data as JSON documents, for integrations and AI tools: `GET https://netapi.com/api-json/?method=...` (or `/api-json/<method>/?...`), token as `Authorization: Bearer YOUR_API_TOKEN` (or `token=`), errors as `{"error": {"code": "...", "message": "..."}}`. See [json-api.md](endpoints/json-api.md); [`openapi-gpt.yaml`](openapi-gpt.yaml) describes the JSON API with one operation per method for GPT Actions and similar OpenAPI tools (the NetAPI GPT in the GPT Store uses it).
 
 | Method | Description | Auth |
 |---|---|---|
