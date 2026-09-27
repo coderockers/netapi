@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: NetAPI — Domain Data API
-  version: 2.0.0
+  version: 2.1.0
   description: |
     NetAPI serves daily-updated domain data as CSV: full domain lists and
     detailed datasets for more than 1,500 TLDs, newly registered domains,
@@ -15,6 +15,12 @@ info:
 
     Errors are returned as a short plain-text message whose text starts with
     the HTTP status code, e.g. `403 Forbidden: No active/paid plan.`
+
+    `GET /api-json/` is the JSON twin of the API for integrations and AI
+    tools (it also powers the NetAPI MCP server, https://mcp.netapi.com/mcp):
+    JSON documents, JSON errors `{"error": {"code", "message"}}`, the token in
+    the `Authorization: Bearer` header. Both share the request limits
+    (429 Too Many Requests + Retry-After when a limit is reached).
   contact:
     name: NetAPI support
     url: https://netapi.com/contact-us/
@@ -41,6 +47,8 @@ tags:
     description: Free compromised-domain and compromised-IP feeds
   - name: free-datasets
     description: Free datasets served outside /api2/
+  - name: json-api
+    description: The JSON API (/api-json/) for integrations and AI tools
 
 paths:
   /api2/:
@@ -260,6 +268,207 @@ paths:
               schema:
                 type: string
 
+  /api-json/:
+    get:
+      operationId: apiJson
+      summary: Call a JSON API method
+      description: |
+        Selects the operation with `method`. Required parameters per method:
+
+        | method | required | optional | auth |
+        |---|---|---|---|
+        | `compromised-check` | `value` | — | none |
+        | `search-new` | `q` (4+ characters) | `days` (1-7), `tld`, `match`, `limit` | none |
+        | `tld-stats` | `tld` | — | none |
+        | `domain-rank` | `domain` | — | none |
+        | `top-websites` | `tld` | `limit`, `offset` (offset + limit <= 1000) | none |
+        | `top-1m` | — | `limit`, `offset` | none |
+        | `registrar-info` | `q` (name, brand or id) | — | none |
+        | `dns-provider-info` | `q` (alias, name or nameserver root) | — | none |
+        | `zones` | — | `min_domains`, `cctld` | none |
+        | `me` | — | — | token |
+        | `lookup-domain` | `domain` | — | token + plan |
+        | `lookup-ip` | `ip` | — | token + plan |
+        | `download-url` | `zone_tld`, `dataset_type`, `filter_type` | `format` | token + plan (datasets: Plus+) |
+
+        A token (Bearer header or `token`) raises the limits of the free methods. `source` tags the caller
+        (`mcp`, `gpt`) in the usage log.
+      tags: [json-api]
+      security:
+        - {}
+        - bearerToken: []
+        - apiToken: []
+      parameters:
+        - name: method
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - compromised-check
+              - search-new
+              - tld-stats
+              - domain-rank
+              - top-websites
+              - top-1m
+              - registrar-info
+              - dns-provider-info
+              - zones
+              - me
+              - lookup-domain
+              - lookup-ip
+              - download-url
+        - name: value
+          in: query
+          required: false
+          description: Domain name, hostname, URL or IP address for `compromised-check`.
+          schema:
+            type: string
+          example: example.com
+        - name: q
+          in: query
+          required: false
+          description: Search text for `search-new` (letters, digits, dots, hyphens; 4+ characters); name, brand, id or alias for `registrar-info` / `dns-provider-info`.
+          schema:
+            type: string
+        - name: tld
+          in: query
+          required: false
+          description: TLD without the dot (punycode for IDN zones), for `tld-stats`, `top-websites` and as a filter of `search-new`.
+          schema:
+            type: string
+          example: de
+        - name: domain
+          in: query
+          required: false
+          schema:
+            type: string
+          example: example.com
+        - name: ip
+          in: query
+          required: false
+          schema:
+            type: string
+          example: 172.67.69.160
+        - name: days
+          in: query
+          required: false
+          description: "`search-new`: how many days back, 1-7 (default 1)."
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 7
+        - name: match
+          in: query
+          required: false
+          description: "`search-new`: `contains` (default) or `starts`."
+          schema:
+            type: string
+            enum: [contains, starts]
+        - name: limit
+          in: query
+          required: false
+          description: Rows per answer; the cap depends on the access level (100 without a token).
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: min_domains
+          in: query
+          required: false
+          description: "`zones`: only zones with at least this many active domains."
+          schema:
+            type: integer
+        - name: cctld
+          in: query
+          required: false
+          description: "`zones`: 1 = country-code zones only, 0 = generic zones only."
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: zone_tld
+          in: query
+          required: false
+          description: "`download-url`: TLD or `all-zones`."
+          schema:
+            type: string
+        - name: dataset_type
+          in: query
+          required: false
+          description: "`download-url`: `list` or `dataset`."
+          schema:
+            type: string
+            enum: [list, dataset]
+        - name: filter_type
+          in: query
+          required: false
+          description: "`download-url`: `active`, `new` or `deleted` (lists only)."
+          schema:
+            type: string
+            enum: [active, new, deleted]
+        - name: format
+          in: query
+          required: false
+          description: "`download-url`: `gz` (default) or `plain`."
+          schema:
+            type: string
+            enum: [gz, plain]
+        - name: token
+          in: query
+          required: false
+          description: "API token as a query parameter (the `Authorization: Bearer` header is preferred)."
+          schema:
+            type: string
+        - name: source
+          in: query
+          required: false
+          description: Caller tag for the usage log (`mcp`, `gpt`, `web`).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: JSON document; the fields depend on the method (see the web reference).
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Missing or invalid parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+        '401':
+          description: Token required, or an OAuth access token that expired.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+        '403':
+          description: Incorrect token, no active plan, or a plan too low for datasets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+        '404':
+          description: Unknown method, zone, registrar or provider; file not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+        '429':
+          description: Request limit reached; `retry_after` (seconds) and the `Retry-After` header say when to retry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+
   /netapi_top1mln.csv:
     get:
       operationId: top1m
@@ -293,9 +502,29 @@ paths:
                 3,apple.com
 
 components:
+  schemas:
+    JsonError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: rate_limited
+            message:
+              type: string
+            retry_after:
+              type: integer
+              description: Seconds until the limit resets (429 only).
+          additionalProperties: true
   securitySchemes:
     apiToken:
       type: apiKey
       in: query
       name: token
       description: API token from https://netapi.com/dashboard/
+    bearerToken:
+      type: http
+      scheme: bearer
+      description: The same API token in the Authorization header (JSON API); OAuth access tokens issued by https://netapi.com are accepted too.

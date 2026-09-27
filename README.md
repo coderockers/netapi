@@ -60,6 +60,27 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 | `compromised` | Compromised domains or IP addresses — current (last 24 hours) or all-time | [compromised.md](endpoints/compromised.md) |
 | `compromised-zone` | Currently compromised domains in one TLD | [compromised-zone.md](endpoints/compromised-zone.md) |
 
+### JSON API (`/api-json/`)
+
+The same data as JSON documents, for integrations and AI tools: `GET https://netapi.com/api-json/?method=...`, token as `Authorization: Bearer YOUR_API_TOKEN` (or `token=`), errors as `{"error": {"code": "...", "message": "..."}}`. See [json-api.md](endpoints/json-api.md).
+
+| Method | Description | Auth |
+|---|---|---|
+| `compromised-check` | Is a domain or IP in the compromised feed? | none |
+| `search-new` | Newly registered domains (last 1-7 days) that contain a string | none |
+| `tld-stats` | Registry, size, new / deleted domains, growth, abuse figures of a TLD | none |
+| `domain-rank` | Rank of a domain in the NetAPI Top 1M | none |
+| `top-websites`, `top-1m` | Most popular domains of a TLD, or a slice of the Top 1M | none |
+| `registrar-info`, `dns-provider-info` | Size, rank, abuse rate / market share of a registrar or DNS provider | none |
+| `zones` | Every zone with its figures | none |
+| `me` | Account, plan and limits behind the token | token |
+| `lookup-domain`, `lookup-ip` | JSON twins of the lookups above | token + plan |
+| `download-url` | A 24-hour download link instead of the file | token + plan |
+
+### MCP server for AI assistants
+
+`https://mcp.netapi.com/mcp` exposes the JSON API as tools for Claude, ChatGPT, Cursor and any other MCP client (sign in with a NetAPI account; `/mcp/public` needs none). Docs: [netapi.com/help/mcp/](https://netapi.com/help/mcp/), source: [coderockers/netapi-mcp](https://github.com/coderockers/netapi-mcp).
+
 ### Free datasets outside `/api2/`
 
 | URL | Description | Docs |
@@ -146,8 +167,25 @@ Errors are returned as a short plain-text message with a matching HTTP status co
 | 405 | `405 Method Not Allowed: Missing API method.` | `method` is missing |
 | 405 | `405 Method Not Allowed: Unsupported method (…).` | unknown `method` |
 | 405 | `405 Method Not Allowed: Missing …` / `Invalid …` | a required parameter is missing or has an unknown value |
+| 429 | `429 Too Many Requests: limit of N requests per minute / per day …` | a request limit of your plan is reached; the `Retry-After` header says when to retry (see [Request limits](#request-limits)) |
 
 Each endpoint page lists the exact messages it can return.
+
+---
+
+## Request limits
+
+Limits are counted per account (per IP address without a token) and reset at 00:00 UTC. Downloads = `download`, `download-dns`, `download-whois`, `download-url`; lookups = `lookup-domain`, `lookup-ip`. The JSON API and the MCP server share these counters.
+
+| Access | Free JSON methods | Lists (`top-websites`, `top-1m`) | `search-new` | Lookups | Downloads |
+|---|---|---|---|---|---|
+| No token | 30 / min, 1,000 / day | 10 / min, 200 / day | 6 / min, 100 / day, 100 rows | — | — |
+| Token, no plan | 60 / min, 5,000 / day | 30 / min, 1,000 / day | 30 / min, 500 / day, 500 rows | — | — |
+| Basic | 60 / min | 60 / min | 2,000 / day, 1,000 rows | 2,000 / day | 300 / day |
+| Plus | 60 / min | 60 / min | 5,000 / day, 5,000 rows | 5,000 / day | 1,000 / day |
+| Pro | 120 / min | 120 / min | no daily limit | no daily limit | no daily limit |
+
+Accounts younger than 48 hours have lower daily caps.
 
 ---
 
@@ -166,12 +204,17 @@ Each endpoint page lists the exact messages it can return.
 | [examples/go-example-compromised.go](examples/go-example-compromised.go) | read the compromised feed in Go |
 | [examples/php-example.php](examples/php-example.php) | download and decompress a zone list in PHP |
 | [examples/php-example-compromised.php](examples/php-example-compromised.php) | read the compromised feed in PHP |
+| [examples/curl-example-json.sh](examples/curl-example-json.sh) | JSON API: compromised check, new-domain search, domain lookup with cURL |
+| [examples/python-example-json.py](examples/python-example-json.py) | JSON API in Python (standard library) |
+| [examples/node-example-json.js](examples/node-example-json.js) | JSON API in Node.js 18+ |
+| [examples/go-example-json.go](examples/go-example-json.go) | JSON API in Go (`go run examples/go-example-json.go`) |
+| [examples/php-example-json.php](examples/php-example-json.php) | JSON API in PHP |
 
 ---
 
 ## OpenAPI
 
-[openapi.yaml](openapi.yaml) describes the API in OpenAPI 3.0 format. Because all operations share one path and are selected with the `method` parameter, the specification exposes a single `GET /api2/` operation whose `method` enum and parameter descriptions cover every endpoint, plus the Top 1M download.
+[openapi.yaml](openapi.yaml) describes the API in OpenAPI 3.0 format. Because all operations share one path and are selected with the `method` parameter, the specification exposes a single `GET /api2/` operation whose `method` enum and parameter descriptions cover every endpoint, plus `GET /api-json/` (the JSON API) and the Top 1M download.
 
 ---
 
