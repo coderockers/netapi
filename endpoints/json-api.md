@@ -34,7 +34,7 @@ Public statistics answer with `Cache-Control: public, max-age=3600`; everything 
 | `search-new` | `q` (4+ characters), `days` 1-7 (default 1), `tld`, `match` = `contains` \| `starts`, `limit` | `results[]` (`domain`, `tld`, `added_on`), `truncated` |
 | `tld-stats` | `tld` | registry, `domains`, `new_24h`, `deleted_24h`, `change` over 7/30/90/365 days, `rank_by_size`, `compromised`, `top_1m`, `policies`, `description` |
 | `domain-rank` | `domain` | `rank` in the NetAPI Top 1M, `rank_in_tld` |
-| `top-websites` | `tld`, `limit`, `offset` (offset + limit ≤ 1,000) | most popular domains of the TLD with global rank |
+| `top-websites` | `tld` or `country` (name or two-letter code), `limit`, `offset` (offset + limit ≤ 1,000) | most popular domains of the TLD, or of a country's ccTLD (Germany = .de), with global rank |
 | `top-1m` | `limit`, `offset` | slice of the Top 1M |
 | `registrar-info` | `q` = name, brand or id | `domains`, `rank_by_size`, `abuse` (compromised domains, rate, overall rate), `page`, `other_matches` |
 | `dns-provider-info` | `q` = alias, name or nameserver root | `domains`, `market_share` (share, rank, 30-day and 1-year change), `page`, `other_matches` |
@@ -55,7 +55,7 @@ https://netapi.com/api-json/?method=tld-stats&tld=de
 |---|---|---|
 | `lookup-domain` | `domain` | `dns[]`, `hostname`, `ip`, `ip_country`, `registered_on`, `expires_on`, `registrar` (`found: false` when unknown) |
 | `lookup-ip` | `ip` | `domains[]` (up to 3) with `hostname` and `dns[]` |
-| `download-url` | `zone_tld` (or `all-zones`), `dataset_type` = `list` \| `dataset`, `filter_type` = `active` \| `new` \| `deleted`, `format` = `gz` \| `plain` | `download_url` valid 24 hours, `file_name`, `size_bytes`, `file_date` — the same rules as [download](download.md) (datasets need Plus or Pro; deleted lists only for zones whose registry publishes the complete zone daily) |
+| `download-url` | one of `zone_tld` (or `all-zones`), `dns_alias` (from `dns-provider-info`), `registrar_id` (from `registrar-info`); `dataset_type` = `list` \| `dataset`; `filter_type` = `active` \| `new` \| `deleted` (zones only, default `active`); `format` = `gz` \| `plain` | `download_url` valid 24 hours, `file_name`, `size_bytes`, `file_date`, `columns` — the same rules as [download](download.md), [download-dns](download-dns.md) and [download-whois](download-whois.md) (lists with any plan, datasets need Plus or Pro; deleted lists only for zones whose registry publishes the complete zone daily) |
 
 ## Request limits
 

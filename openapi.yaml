@@ -394,7 +394,7 @@ paths:
         - name: zone_tld
           in: query
           required: false
-          description: "`download-url`: TLD or `all-zones`."
+          description: "`download-url`: TLD or `all-zones` (or pass `dns_alias` / `registrar_id` instead)."
           schema:
             type: string
         - name: dataset_type
@@ -407,7 +407,7 @@ paths:
         - name: filter_type
           in: query
           required: false
-          description: "`download-url`: `active`, `new` or `deleted` (lists only)."
+          description: "`download-url`, zones only: `active` (default), `new` or `deleted` (lists only)."
           schema:
             type: string
             enum: [active, new, deleted]
@@ -418,6 +418,24 @@ paths:
           schema:
             type: string
             enum: [gz, plain]
+        - name: dns_alias
+          in: query
+          required: false
+          description: "`download-url`: all domains using this DNS provider (alias from `dns-provider-info`), instead of `zone_tld`."
+          schema:
+            type: string
+        - name: registrar_id
+          in: query
+          required: false
+          description: "`download-url`: all domains of this registrar (id from `registrar-info`), instead of `zone_tld`."
+          schema:
+            type: integer
+        - name: country
+          in: query
+          required: false
+          description: "`top-websites`: country name or two-letter code instead of `tld` (resolved to the country's ccTLD, e.g. Germany = de)."
+          schema:
+            type: string
         - name: token
           in: query
           required: false

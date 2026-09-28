@@ -164,13 +164,17 @@ paths:
   /api-json/top-websites:
     get:
       operationId: getTopWebsitesOfTld
-      summary: The most popular websites of one TLD
-      description: A slice of the NetAPI Top 1M limited to one TLD (e.g. the top .de or .fr websites) with the global rank. Available for the ~80 TLDs with at least 1,000 domains in the Top 1M; offset + limit up to 1,000, the full slice is a free CSV linked in the answer. Free.
+      summary: The most popular websites of a country or TLD
+      description: A slice of the NetAPI Top 1M limited to one TLD or to a country's ccTLD (Germany = .de; sites of the country on .com are not included), with the global rank. Available for the ~80 TLDs with at least 1,000 domains in the Top 1M; offset + limit up to 1,000, the full slice is a free CSV linked in the answer. Pass tld or country. Free.
       parameters:
         - name: tld
           in: query
-          required: true
+          description: TLD without the dot, e.g. de or io.
           schema: { type: string, example: de }
+        - name: country
+          in: query
+          description: Country name (English, German, French or Spanish) or a two-letter code, e.g. Germany, DE, United Kingdom.
+          schema: { type: string, example: Germany }
         - name: limit
           in: query
           description: Rows to return (default 10, max 100 without an account).
@@ -357,21 +361,32 @@ paths:
     get:
       operationId: getDownloadUrl
       summary: A temporary download link (24 hours) for a domain list or dataset file
-      description: The full list of active domains of a zone, its new domains of the last 24 hours, its deleted domains, or the combined file of all zones; as a plain list or a dataset with DNS, IP, hostname, emails and phones. Needs an active plan (Plus or Pro for datasets). Give the user the returned URL; the file itself is not read through this API.
+      description: >-
+        Source, exactly one of zone_tld (the domains of a zone or of all zones: active, new in the last 24 h, deleted in the last 24 h),
+        dns_alias (all domains using a DNS provider, alias from getDnsProviderInfo) or registrar_id (all domains of a registrar, id from
+        getRegistrarInfo). Lists and datasets are separate files: list = domain names only (any plan), dataset = one row per domain with
+        nameservers, hostname, hosting IP and its country, emails and phone numbers (registrar datasets: registration and expiry dates
+        instead of nameservers and hostname; Plus or Pro plan). Give the user the returned URL; the file itself is not read through this API.
       parameters:
         - name: zone_tld
           in: query
-          required: true
           description: TLD without the dot, or all-zones.
           schema: { type: string, example: net }
+        - name: dns_alias
+          in: query
+          description: DNS provider alias from getDnsProviderInfo, e.g. cloudflare.
+          schema: { type: string }
+        - name: registrar_id
+          in: query
+          description: Registrar id from getRegistrarInfo, e.g. 1068.
+          schema: { type: integer }
         - name: dataset_type
           in: query
           required: true
           schema: { type: string, enum: [list, dataset] }
         - name: filter_type
           in: query
-          required: true
-          description: active = all current domains, new = last 24 h, deleted = dropped out in the last 24 h (lists only).
+          description: Zones only. active (default) = all current domains, new = registered in the last 24 h, deleted = dropped out in the last 24 h (lists only).
           schema: { type: string, enum: [active, new, deleted] }
         - name: format
           in: query
