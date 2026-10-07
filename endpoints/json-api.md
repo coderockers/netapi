@@ -53,7 +53,7 @@ https://netapi.com/api-json/?method=tld-stats&tld=de
 
 | method | parameters | answer |
 |---|---|---|
-| `lookup-domain` | `domain` | `dns[]`, `hostname`, `ip`, `ip_country`, `registered_on`, `expires_on`, `registrar` (`found: false` when unknown) |
+| `lookup-domain` | `domain` | `dns[]`, `hostname`, `ip`, `ip_country`, `registered_on`, `expires_on`, `registrar`, `whois_checked_on` (`found: false` when unknown) |
 | `lookup-ip` | `ip` | `domains[]` (up to 3) with `hostname` and `dns[]` |
 | `download-url` | one of `zone_tld` (or `all-zones`), `dns_alias` (from `dns-provider-info`), `registrar_id` (from `registrar-info`); `dataset_type` = `list` \| `dataset`; `filter_type` = `active` \| `new` \| `deleted` (zones only, default `active`); `format` = `gz` \| `plain` | `download_url` valid 24 hours, `file_name`, `size_bytes`, `file_date`, `columns` — the same rules as [download](download.md), [download-dns](download-dns.md) and [download-whois](download-whois.md) (lists with any plan, datasets need Plus or Pro; deleted lists only for zones whose registry publishes the complete zone daily) |
 

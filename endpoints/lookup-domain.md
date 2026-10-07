@@ -18,10 +18,10 @@ GET https://netapi.com/api2/?method=lookup-domain&domain={domain}&token={token}
 
 ## Response
 
-A single line with nine comma-separated fields:
+A single line with ten comma-separated fields:
 
 ```
-url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id
+url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id,whois_checked_at
 ```
 
 | Field | Description |
@@ -34,6 +34,7 @@ url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id
 | `registered_at` | Registration date, `YYYY-MM-DD`; empty if unknown. |
 | `expiring_at` | Expiration date, `YYYY-MM-DD`; empty if unknown. |
 | `registrar_id` | Numeric registrar ID; resolve it with [`registrars`](registrars.md). Empty if unknown. |
+| `whois_checked_at` | Date of the latest WHOIS/RDAP check of the registration data, `YYYY-MM-DD`; empty if never checked. |
 
 Example (illustrative values):
 
@@ -69,7 +70,7 @@ import csv
 import requests
 
 FIELDS = ["url", "dns1", "dns2", "hostname", "ip", "ip_country",
-          "registered_at", "expiring_at", "registrar_id"]
+          "registered_at", "expiring_at", "registrar_id", "whois_checked_at"]
 
 resp = requests.get(
     "https://netapi.com/api2/",

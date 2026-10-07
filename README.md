@@ -128,7 +128,13 @@ Keep your token private: it identifies your account, and every request made with
 
 ### Dataset columns
 
-Zone datasets (`download`, `download-dns`):
+Zone datasets (`download`):
+
+```
+url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country,registered_at,expiring_at,registrar,whois_checked_at
+```
+
+DNS-provider datasets (`download-dns`):
 
 ```
 url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
@@ -149,8 +155,9 @@ registrar,url,registered_at,expiring_at,majestic_rank,emails,phones,ip,ip_countr
 | `emails`, `phones` | contact details found on the website; comma-separated inside one quoted field |
 | `ip` | web server IP address |
 | `ip_country` | two-letter country code of the server IP (geolocation) |
-| `registrar` | sponsoring registrar (legal entity name) |
-| `registered_at`, `expiring_at` | registration and expiration dates, `YYYY-MM-DD` |
+| `registrar` | sponsoring registrar (legal entity name); empty where the registry publishes none |
+| `registered_at`, `expiring_at` | registration and expiration dates, `YYYY-MM-DD`; empty where the registry publishes none |
+| `whois_checked_at` | date of the latest WHOIS/RDAP check of the registration data, `YYYY-MM-DD` (zone datasets) |
 
 ---
 

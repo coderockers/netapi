@@ -178,7 +178,7 @@ paths:
 
             * `zones`, `dns`, `registrars` — CSV with a header row (`text/html; charset=UTF-8` is sent as content type; treat the body as CSV).
             * `download*` — CSV file, gzip-compressed unless `format=plain`, served with a `Content-Disposition` filename.
-            * `lookup-domain` — one CSV row without header (`url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id`), or the text `NOT FOUND`.
+            * `lookup-domain` — one CSV row without header (`url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id,whois_checked_at`), or the text `NOT FOUND`.
             * `lookup-ip` — up to 3 CSV rows without header (`url,hostname,dns1,dns2`), or the text `NOT FOUND`.
             * `compromised`, `compromised-zone` — one `#` comment line followed by one domain or IP per line.
           content:
@@ -205,8 +205,8 @@ paths:
                 zoneDataset:
                   summary: download, dataset_type=dataset
                   value: |
-                    url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
-                    example.net,8421,ns1.example.net,ns2.example.net,web1.example.net,"info@example.net,sales@example.net",+1-202-555-0143,203.0.113.10,US
+                    url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country,registered_at,expiring_at,registrar,whois_checked_at
+                    example.net,8421,ns1.example.net,ns2.example.net,web1.example.net,"info@example.net,sales@example.net",+1-202-555-0143,203.0.113.10,US,2015-08-14,2027-08-13,"GoDaddy.com, LLC",2026-09-30
                 registrarDataset:
                   summary: download-whois, dataset_type=dataset
                   value: |
@@ -215,7 +215,7 @@ paths:
                 lookupDomain:
                   summary: lookup-domain
                   value: |
-                    example.com,ns1.example.com,ns2.example.com,web1.example.com,203.0.113.10,US,2015-08-14,2027-08-13,146
+                    example.com,ns1.example.com,ns2.example.com,web1.example.com,203.0.113.10,US,2015-08-14,2027-08-13,146,2026-09-30
                 lookupIp:
                   summary: lookup-ip
                   value: |

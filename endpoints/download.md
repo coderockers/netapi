@@ -36,9 +36,9 @@ sample-site.net
 `dataset_type=dataset`:
 
 ```
-url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country
-example.net,8421,ns1.example.net,ns2.example.net,web1.example.net,"info@example.net,sales@example.net",+1-202-555-0143,203.0.113.10,US
-sample-site.net,,ns1.hosting.net,ns2.hosting.net,srv-12.hosting.net,,,198.51.100.7,DE
+url,majestic_rank,dns1,dns2,hostname,emails,phones,ip,ip_country,registered_at,expiring_at,registrar,whois_checked_at
+example.net,8421,ns1.example.net,ns2.example.net,web1.example.net,"info@example.net,sales@example.net",+1-202-555-0143,203.0.113.10,US,2015-08-14,2027-08-13,"GoDaddy.com, LLC",2026-09-30
+sample-site.net,,ns1.hosting.net,ns2.hosting.net,srv-12.hosting.net,,,198.51.100.7,DE,,,,
 ```
 
 ### Dataset columns
@@ -53,8 +53,12 @@ sample-site.net,,ns1.hosting.net,ns2.hosting.net,srv-12.hosting.net,,,198.51.100
 | `phones` | Phone numbers found on the website, same format as `emails`. |
 | `ip` | IP address of the web server. |
 | `ip_country` | Two-letter country code of the server IP (geolocation). |
+| `registered_at` | Registration date, `YYYY-MM-DD`; empty where the registry publishes none. |
+| `expiring_at` | Expiration date, `YYYY-MM-DD`; empty where the registry publishes none. |
+| `registrar` | Sponsoring registrar (legal entity name); empty where the registry publishes none. |
+| `whois_checked_at` | Date of the latest WHOIS/RDAP check of the registration data, `YYYY-MM-DD`; empty if never checked. |
 
-Metadata is collected when the domain's website is crawled; fields are empty for domains without a reachable website.
+Website metadata is collected when the domain's website is crawled; those fields are empty for domains without a reachable website. Registration data comes from the registry's RDAP/WHOIS service; the last four columns stay empty for zones whose registry publishes none (added 2026-10-07).
 
 ## Errors
 
