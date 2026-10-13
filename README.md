@@ -80,7 +80,7 @@ The same data as JSON documents, for integrations and AI tools: `GET https://net
 
 ### MCP server for AI assistants
 
-`https://mcp.netapi.com/mcp` exposes the JSON API as tools for Claude, ChatGPT, Cursor and any other MCP client: 9 free tools (compromised check, new-domain search, TLD / registrar / DNS-provider statistics, Top 1M ranks, zone list) and, with a plan, domain and IP lookups and download links. Sign in with a NetAPI account through the standard MCP OAuth flow, or use `/mcp/public` without an account (free tools only). Listed in the MCP Registry as `com.netapi/mcp`. Docs: [netapi.com/help/mcp/](https://netapi.com/help/mcp/), source and client setup: [coderockers/netapi-mcp](https://github.com/coderockers/netapi-mcp).
+`https://mcp.netapi.com/mcp` exposes the JSON API as tools for Claude, ChatGPT, Cursor and any other MCP client: 9 free tools (compromised check, new-domain search, TLD / registrar / DNS-provider statistics, Top 1M ranks, zone list) and, with a plan, domain and IP lookups and download links. Sign in with a NetAPI account through the standard MCP OAuth flow, or use `/mcp/public` without an account (free tools only). Listed in the MCP Registry as `com.netapi/mcp` and in the [ChatGPT plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6aba38a3e0248191a954e7f73e0e6edd). Docs: [netapi.com/help/mcp/](https://netapi.com/help/mcp/), source and client setup: [coderockers/netapi-mcp](https://github.com/coderockers/netapi-mcp).
 
 ### Free datasets outside `/api2/`
 
