@@ -196,8 +196,8 @@ paths:
                     items:
                       type: object
                       properties:
-                        position: { type: integer, description: position in the country list }
-                        rank: { type: integer, nullable: true, description: position in the global NetAPI Top 1M }
+                        rank: { type: integer, description: position in the country list }
+                        global_rank: { type: integer, nullable: true, description: position in the global NetAPI Top 1M }
                         domain: { type: string }
                   page: { type: string }
                   csv: { type: string }
