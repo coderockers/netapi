@@ -281,7 +281,7 @@ paths:
         | `search-new` | `q` (4+ characters) | `days` (1-7), `tld`, `match`, `limit` | none |
         | `tld-stats` | `tld` | — | none |
         | `domain-rank` | `domain` | — | none |
-        | `top-websites` | `tld` | `limit`, `offset` (offset + limit <= 1000) | none |
+        | `top-websites` | `country` or `tld` | `limit`, `offset` (offset + limit <= 1000) | none |
         | `top-1m` | — | `limit`, `offset` | none |
         | `registrar-info` | `q` (name, brand or id) | — | none |
         | `dns-provider-info` | `q` (alias, name or nameserver root) | — | none |
@@ -433,7 +433,7 @@ paths:
         - name: country
           in: query
           required: false
-          description: "`top-websites`: country name or two-letter code instead of `tld` (resolved to the country's ccTLD, e.g. Germany = de)."
+          description: "`top-websites`: country name or two-letter code (e.g. Germany, DE): the websites users in that country visit most, on any zone, with traffic tier and global rank. Use `tld` instead for the domains of one TLD in the Top 1M."
           schema:
             type: string
         - name: token

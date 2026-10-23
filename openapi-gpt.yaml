@@ -165,7 +165,7 @@ paths:
     get:
       operationId: getTopWebsitesOfTld
       summary: The most popular websites of a country or TLD
-      description: A slice of the NetAPI Top 1M limited to one TLD or to a country's ccTLD (Germany = .de; sites of the country on .com are not included), with the global rank. Available for the ~80 TLDs with at least 1,000 domains in the Top 1M; offset + limit up to 1,000, the full slice is a free CSV linked in the answer. Pass tld or country. Free.
+      description: With country, the websites users in that country visit most on any domain zone (google.com next to local sites), ordered by traffic tier from monthly Chrome usage data and then by global NetAPI rank; up to 100,000 domains per country, the full list is a free CSV linked in the answer. With tld, the domains of that TLD in the NetAPI Top 1M with their global rank (~80 TLDs with at least 1,000 domains). offset + limit up to 1,000. Pass country or tld. Free.
       parameters:
         - name: tld
           in: query
@@ -173,7 +173,7 @@ paths:
           schema: { type: string, example: de }
         - name: country
           in: query
-          description: Country name (English, German, French or Spanish) or a two-letter code, e.g. Germany, DE, United Kingdom.
+          description: Country name (English, German, French or Spanish) or a two-letter code, e.g. Germany, DE, United Kingdom; answers with the country list (any zone).
           schema: { type: string, example: Germany }
         - name: limit
           in: query
@@ -191,15 +191,21 @@ paths:
               schema:
                 type: object
                 properties:
-                  tld: { type: string }
-                  sites_in_top_1m: { type: integer }
+                  tld: { type: string, description: with tld only }
+                  country: { type: string }
+                  country_code: { type: string, description: with country only }
+                  data_month: { type: string, description: with country only, month of the traffic data (YYYY-MM) }
+                  sites_in_top_1m: { type: integer, description: with tld only }
+                  domains_total: { type: integer, description: with country only }
                   results:
                     type: array
                     items:
                       type: object
                       properties:
-                        rank_in_tld: { type: integer }
-                        rank: { type: integer }
+                        position: { type: integer, description: position in the country list (country) }
+                        traffic_tier: { type: integer, description: CrUX popularity bucket, 1000 = among the ~1,000 most visited (country) }
+                        rank_in_tld: { type: integer, description: position within the TLD (tld) }
+                        rank: { type: integer, nullable: true, description: position in the global NetAPI Top 1M }
                         domain: { type: string }
                   page: { type: string }
                   csv: { type: string }
