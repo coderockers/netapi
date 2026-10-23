@@ -433,7 +433,7 @@ paths:
         - name: country
           in: query
           required: false
-          description: "`top-websites`: country name or two-letter code (e.g. Germany, DE): the websites users in that country visit most, on any zone, with traffic tier and global rank."
+          description: "`top-websites`: country name or two-letter code (e.g. Germany, DE): the 1,000 websites users in that country visit most, on any zone, with the global rank."
           schema:
             type: string
         - name: token

@@ -165,7 +165,7 @@ paths:
     get:
       operationId: getTopWebsitesOfTld
       summary: The most visited websites of a country
-      description: The websites users in a country visit most on any domain zone (google.com next to local sites), ordered by traffic tier from monthly traffic data and then by global NetAPI rank; up to 100,000 domains per country, the full list is a free CSV linked in the answer. offset + limit up to 1,000. Free.
+      description: The 1,000 websites users in a country visit most on any domain zone (google.com next to local sites), ranked by monthly traffic and popularity signals, with the global NetAPI rank; the full list is a free CSV linked in the answer. offset + limit up to 1,000. Free.
       parameters:
         - name: country
           in: query
@@ -191,14 +191,12 @@ paths:
                   country: { type: string }
                   country_code: { type: string }
                   data_month: { type: string, description: month of the traffic data (YYYY-MM) }
-                  domains_total: { type: integer }
                   results:
                     type: array
                     items:
                       type: object
                       properties:
                         position: { type: integer, description: position in the country list }
-                        traffic_tier: { type: integer, description: popularity group, 1000 = among the ~1,000 most visited sites of the country }
                         rank: { type: integer, nullable: true, description: position in the global NetAPI Top 1M }
                         domain: { type: string }
                   page: { type: string }
