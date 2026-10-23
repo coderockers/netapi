@@ -71,7 +71,7 @@ The same data as JSON documents, for integrations and AI tools: `GET https://net
 | `search-new` | Newly registered domains (last 1-7 days) that contain a string | none |
 | `tld-stats` | Registry, size, new / deleted domains, growth, abuse figures of a TLD | none |
 | `domain-rank` | Rank of a domain in the NetAPI Top 1M | none |
-| `top-websites`, `top-1m` | Most visited websites of a country (any zone) or most popular domains of a TLD, or a slice of the Top 1M | none |
+| `top-websites`, `top-1m` | Most visited websites of a country (any zone), or a slice of the Top 1M | none |
 | `registrar-info`, `dns-provider-info` | Size, rank, abuse rate / market share of a registrar or DNS provider | none |
 | `zones` | Every zone with its figures | none |
 | `me` | Account, plan and limits behind the token | token |

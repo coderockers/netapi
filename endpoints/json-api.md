@@ -34,7 +34,7 @@ Public statistics answer with `Cache-Control: public, max-age=3600`; everything 
 | `search-new` | `q` (4+ characters), `days` 1-7 (default 1), `tld`, `match` = `contains` \| `starts`, `limit` | `results[]` (`domain`, `tld`, `added_on`), `truncated` |
 | `tld-stats` | `tld` | registry, `domains`, `new_24h`, `deleted_24h`, `change` over 7/30/90/365 days, `rank_by_size`, `compromised`, `top_1m`, `policies`, `description` |
 | `domain-rank` | `domain` | `rank` in the NetAPI Top 1M, `rank_in_tld` |
-| `top-websites` | `country` (name or two-letter code) or `tld`, `limit`, `offset` (offset + limit ≤ 1,000) | `country`: the websites users in that country visit most, on any zone (`position`, `traffic_tier`, global `rank`; monthly traffic data); `tld`: the domains of the TLD in the Top 1M with their global rank |
+| `top-websites` | `country` (name or two-letter code), `limit`, `offset` (offset + limit ≤ 1,000) | the websites users in that country visit most, on any zone: `position`, `traffic_tier`, global `rank`; monthly traffic data |
 | `top-1m` | `limit`, `offset` | slice of the Top 1M |
 | `registrar-info` | `q` = name, brand or id | `domains`, `rank_by_size`, `abuse` (compromised domains, rate, overall rate), `page`, `other_matches` |
 | `dns-provider-info` | `q` = alias, name or nameserver root | `domains`, `market_share` (share, rank, 30-day and 1-year change), `page`, `other_matches` |
