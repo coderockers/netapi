@@ -51,7 +51,7 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 
 | Method | Description | Docs |
 |---|---|---|
-| `lookup-domain` | Nameservers, hosting IP, country, registration dates and registrar of one domain | [lookup-domain.md](endpoints/lookup-domain.md) |
+| `lookup-domain` | Nameservers, hosting IP, country, registration dates, registrar and compromised-feed status of one domain | [lookup-domain.md](endpoints/lookup-domain.md) |
 | `lookup-ip` | Domains hosted on one IP address (up to 3) | [lookup-ip.md](endpoints/lookup-ip.md) |
 
 ### Threat intelligence (free, no token)

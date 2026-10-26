@@ -18,10 +18,10 @@ GET https://netapi.com/api2/?method=lookup-domain&domain={domain}&token={token}
 
 ## Response
 
-A single line with ten comma-separated fields:
+A single line with eleven comma-separated fields:
 
 ```
-url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id,whois_checked_at
+url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id,whois_checked_at,compromised
 ```
 
 | Field | Description |
@@ -35,11 +35,12 @@ url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id,whoi
 | `expiring_at` | Expiration date, `YYYY-MM-DD`; empty if unknown. |
 | `registrar_id` | Numeric registrar ID; resolve it with [`registrars`](registrars.md). Empty if unknown. |
 | `whois_checked_at` | Date of the latest WHOIS/RDAP check of the registration data, `YYYY-MM-DD`; empty if never checked. |
+| `compromised` | Status in the [compromised domains feed](https://netapi.com/compromised-urls/): `listed_now` (listed within the last 24 hours), `listed_past` (listed earlier, not now) or empty (never listed). |
 
 Example (illustrative values):
 
 ```
-example.com,ns1.example.com,ns2.example.com,web1.example.com,203.0.113.10,US,2015-08-14,2027-08-13,146
+example.com,ns1.example.com,ns2.example.com,web1.example.com,203.0.113.10,US,2015-08-14,2027-08-13,146,2026-10-20,
 ```
 
 If the domain is not in the database the response body is the text `NOT FOUND` with HTTP status 200.
@@ -70,7 +71,7 @@ import csv
 import requests
 
 FIELDS = ["url", "dns1", "dns2", "hostname", "ip", "ip_country",
-          "registered_at", "expiring_at", "registrar_id", "whois_checked_at"]
+          "registered_at", "expiring_at", "registrar_id", "whois_checked_at", "compromised"]
 
 resp = requests.get(
     "https://netapi.com/api2/",
