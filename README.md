@@ -52,13 +52,12 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 | Method | Description | Docs |
 |---|---|---|
 | `lookup-domain` | Nameservers, hosting IP, country, registration dates, registrar and compromised-feed status of one domain | [lookup-domain.md](endpoints/lookup-domain.md) |
-| `lookup-ip` | Domains hosted on one IP address (up to 3) | [lookup-ip.md](endpoints/lookup-ip.md) |
 
 ### Threat intelligence (free, no token)
 
 | Method | Description | Docs |
 |---|---|---|
-| `compromised` | Compromised domains or IP addresses — current (last 24 hours) or all-time | [compromised.md](endpoints/compromised.md) |
+| `compromised` | Compromised domains — current (last 24 hours) or all-time, also in hosts-file format | [compromised.md](endpoints/compromised.md) |
 | `compromised-zone` | Currently compromised domains in one TLD | [compromised-zone.md](endpoints/compromised-zone.md) |
 
 ### JSON API (`/api-json/`)
@@ -67,7 +66,7 @@ The same data as JSON documents, for integrations and AI tools: `GET https://net
 
 | Method | Description | Auth |
 |---|---|---|
-| `compromised-check` | Is a domain or IP in the compromised feed? | none |
+| `compromised-check` | Is a domain in the compromised feed? | none |
 | `search-new` | Newly registered domains (last 1-7 days) that contain a string | none |
 | `tld-stats` | Registry, size, new / deleted domains, growth, abuse figures of a TLD | none |
 | `domain-rank` | Rank of a domain in the NetAPI Top 1M | none |
@@ -75,12 +74,12 @@ The same data as JSON documents, for integrations and AI tools: `GET https://net
 | `registrar-info`, `dns-provider-info` | Size, rank, abuse rate / market share of a registrar or DNS provider | none |
 | `zones` | Every zone with its figures | none |
 | `me` | Account, plan and limits behind the token | token |
-| `lookup-domain`, `lookup-ip` | JSON twins of the lookups above | token + plan |
+| `lookup-domain` | JSON twin of the domain lookup above | token + plan |
 | `download-url` | A 24-hour download link instead of the file | token + plan |
 
 ### MCP server for AI assistants
 
-`https://mcp.netapi.com/mcp` exposes the JSON API as tools for Claude, ChatGPT, Cursor and any other MCP client: 9 free tools (compromised check, new-domain search, TLD / registrar / DNS-provider statistics, Top 1M ranks, zone list) and, with a plan, domain and IP lookups and download links. Sign in with a NetAPI account through the standard MCP OAuth flow, or use `/mcp/public` without an account (free tools only). Listed in the MCP Registry as `com.netapi/mcp` and in the [ChatGPT plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6aba38a3e0248191a954e7f73e0e6edd). Docs: [netapi.com/help/mcp/](https://netapi.com/help/mcp/), source and client setup: [coderockers/netapi-mcp](https://github.com/coderockers/netapi-mcp).
+`https://mcp.netapi.com/mcp` exposes the JSON API as tools for Claude, ChatGPT, Cursor and any other MCP client: 9 free tools (compromised check, new-domain search, TLD / registrar / DNS-provider statistics, Top 1M ranks, zone list) and, with a plan, domain lookups and download links. Sign in with a NetAPI account through the standard MCP OAuth flow, or use `/mcp/public` without an account (free tools only). Listed in the MCP Registry as `com.netapi/mcp` and in the [ChatGPT plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6aba38a3e0248191a954e7f73e0e6edd). Docs: [netapi.com/help/mcp/](https://netapi.com/help/mcp/), source and client setup: [coderockers/netapi-mcp](https://github.com/coderockers/netapi-mcp).
 
 ### Free datasets outside `/api2/`
 
@@ -99,7 +98,7 @@ https://netapi.com/api2/?method=lookup-domain&domain=example.com&token=YOUR_API_
 ```
 
 - `zones`, `dns`, `registrars`, `compromised`, `compromised-zone` and the Top 1M CSV need no token.
-- `lookup-domain`, `lookup-ip`, `download`, `download-dns` and `download-whois` need a valid token **and an active paid plan**. Detailed datasets (`dataset_type=dataset`) require the Plus plan or higher; the Basic plan covers domain lists only. See [Plans](https://netapi.com/plans/).
+- `lookup-domain`, `download`, `download-dns` and `download-whois` need a valid token **and an active paid plan**. Detailed datasets (`dataset_type=dataset`) require the Plus plan or higher; the Basic plan covers domain lists only. See [Plans](https://netapi.com/plans/).
 
 Keep your token private: it identifies your account, and every request made with it is logged against that account.
 
@@ -112,6 +111,7 @@ Keep your token private: it identifies your account, and every request made with
 | `dataset_type` | `list` — one domain per line · `dataset` — domain plus metadata | `download`, `download-dns`, `download-whois` |
 | `filter_type` | `active` — all currently registered domains · `new` — domains first seen in the last 24 hours | `download` |
 | `format` | `plain` — uncompressed CSV instead of `.csv.gz` | `download`, `download-dns`, `download-whois` |
+| `format` | `hosts` — `0.0.0.0 domain` lines for hosts-based blockers | `compromised` |
 | `token` | your API token | see Authentication |
 
 `new` is available only for zones that are fully refreshed daily (`isUpdatedDaily=1` in `zones`). Other zones support `active` only.
@@ -121,7 +121,7 @@ Keep your token private: it identifies your account, and every request made with
 ## Response format
 
 - Reference lists and downloads are CSV with a header row. Fields that may contain commas (provider names, registrar names, email and phone lists) are double-quoted.
-- `lookup-domain` and `lookup-ip` return CSV rows **without** a header. When nothing is found they return the text `NOT FOUND` with HTTP 200.
+- `lookup-domain` returns one CSV row **without** a header. When nothing is found it returns the text `NOT FOUND` with HTTP 200.
 - `compromised` and `compromised-zone` return one entry per line, preceded by a single `#` comment line with the list name and date.
 - Downloads are served as `application/octet-stream` with a `Content-Disposition` filename, e.g. `net_active_list.csv.gz`.
 - Plain-text downloads can be very large (the `.com` dataset is several gigabytes uncompressed). Use `format=plain` only when you really need it.
@@ -183,7 +183,7 @@ Each endpoint page lists the exact messages it can return.
 
 ## Request limits
 
-Limits are counted per account (per IP address without a token) and reset at 00:00 UTC. Downloads = `download`, `download-dns`, `download-whois`, `download-url`; lookups = `lookup-domain`, `lookup-ip`. The JSON API and the MCP server share these counters.
+Limits are counted per account (per IP address without a token) and reset at 00:00 UTC. Downloads = `download`, `download-dns`, `download-whois`, `download-url`; lookups = `lookup-domain`. The JSON API and the MCP server share these counters.
 
 | Access | Free JSON methods | Lists (`top-websites`, `top-1m`) | `search-new` | Lookups | Downloads |
 |---|---|---|---|---|---|

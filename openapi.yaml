@@ -5,7 +5,7 @@ info:
   description: |
     NetAPI serves daily-updated domain data as CSV: full domain lists and
     detailed datasets for more than 1,500 TLDs, newly registered domains,
-    domains grouped by DNS provider or registrar, single-domain and single-IP lookups, and free threat-intelligence
+    domains grouped by DNS provider or registrar, single-domain lookups, and free threat-intelligence
     feeds.
 
     All API operations share one path, `GET /api2/`, and are selected with
@@ -42,9 +42,9 @@ tags:
   - name: downloads
     description: Full CSV downloads (token + active plan)
   - name: lookups
-    description: Single-domain and single-IP lookups (token + active plan)
+    description: Single-domain lookups (token + active plan)
   - name: threat-intelligence
-    description: Free compromised-domain and compromised-IP feeds
+    description: Free compromised-domain feeds
   - name: free-datasets
     description: Free datasets served outside /api2/
   - name: json-api
@@ -67,8 +67,7 @@ paths:
         | `download-dns` | `dns_alias`, `dataset_type`, `token` | `format` | token + plan |
         | `download-whois` | `registrar_id`, `dataset_type`, `token` | `format` | token + plan |
         | `lookup-domain` | `domain`, `token` | — | token + plan |
-        | `lookup-ip` | `ip`, `token` | — | token + plan |
-        | `compromised` | `dataset_type` (`ip`, `url`, `ip-all`, `url-all`) | — | none |
+        | `compromised` | `dataset_type` (`url`, `url-all`) | `format` (`hosts`) | none |
         | `compromised-zone` | `zone_tld` | — | none |
 
         `dataset_type=dataset` on any download method requires the Plus plan or higher.
@@ -91,7 +90,6 @@ paths:
               - download-dns
               - download-whois
               - lookup-domain
-              - lookup-ip
               - compromised
               - compromised-zone
         - name: token
@@ -119,11 +117,10 @@ paths:
             For `download`, `download-dns`, `download-whois`: `list` (one domain per line) or `dataset` (domain
             plus metadata).
 
-            For `compromised`: `url` (current domains), `ip` (current IPs),
-            `url-all` (all domains ever listed), `ip-all` (all IPs ever listed).
+            For `compromised`: `url` (current domains), `url-all` (all domains ever listed).
           schema:
             type: string
-            enum: [list, dataset, url, ip, url-all, ip-all]
+            enum: [list, dataset, url, url-all]
         - name: filter_type
           in: query
           required: false
@@ -156,21 +153,16 @@ paths:
             type: string
             maxLength: 199
           example: example.com
-        - name: ip
-          in: query
-          required: false
-          description: "`lookup-ip` only. IPv4 or IPv6 address. Maximum 99 characters."
-          schema:
-            type: string
-            maxLength: 99
-          example: 172.67.69.160
         - name: format
           in: query
           required: false
-          description: "Download methods only. `plain` returns uncompressed CSV instead of `.csv.gz`. Plain files for large zones are several gigabytes."
+          description: |
+            Download methods: `plain` returns uncompressed CSV instead of `.csv.gz`. Plain files for large zones are several gigabytes.
+
+            `compromised`: `hosts` returns one `0.0.0.0 domain` line per domain, for hosts-based blockers.
           schema:
             type: string
-            enum: [plain]
+            enum: [plain, hosts]
       responses:
         '200':
           description: |
@@ -179,8 +171,7 @@ paths:
             * `zones`, `dns`, `registrars` — CSV with a header row (`text/html; charset=UTF-8` is sent as content type; treat the body as CSV).
             * `download*` — CSV file, gzip-compressed unless `format=plain`, served with a `Content-Disposition` filename.
             * `lookup-domain` — one CSV row without header (`url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id,whois_checked_at,compromised`), or the text `NOT FOUND`.
-            * `lookup-ip` — up to 3 CSV rows without header (`url,hostname,dns1,dns2`), or the text `NOT FOUND`.
-            * `compromised`, `compromised-zone` — one `#` comment line followed by one domain or IP per line.
+            * `compromised`, `compromised-zone` — one `#` comment line followed by one domain per line (`0.0.0.0 domain` with `format=hosts`).
           content:
             text/csv:
               schema:
@@ -216,14 +207,10 @@ paths:
                   summary: lookup-domain
                   value: |
                     example.com,ns1.example.com,ns2.example.com,web1.example.com,203.0.113.10,US,2015-08-14,2027-08-13,146,2026-09-30
-                lookupIp:
-                  summary: lookup-ip
-                  value: |
-                    example.com,web1.example.com,ns1.example.com,ns2.example.com
                 compromised:
                   summary: compromised, dataset_type=url
                   value: |
-                    # Current compromised URLs (2026-08-23).
+                    # NetAPI.com - currently compromised URLs (2026-10-27).
                     000359.xyz
                     00zyku.com
             application/octet-stream:
@@ -288,7 +275,6 @@ paths:
         | `zones` | — | `min_domains`, `cctld` | none |
         | `me` | — | — | token |
         | `lookup-domain` | `domain` | — | token + plan |
-        | `lookup-ip` | `ip` | — | token + plan |
         | `download-url` | `zone_tld`, `dataset_type`, `filter_type` | `format` | token + plan (datasets: Plus+) |
 
         A token (Bearer header or `token`) raises the limits of the free methods. `source` tags the caller
@@ -316,12 +302,11 @@ paths:
               - zones
               - me
               - lookup-domain
-              - lookup-ip
               - download-url
         - name: value
           in: query
           required: false
-          description: Domain name, hostname, URL or IP address for `compromised-check`.
+          description: Domain name, hostname or URL for `compromised-check`.
           schema:
             type: string
           example: example.com
@@ -344,12 +329,6 @@ paths:
           schema:
             type: string
           example: example.com
-        - name: ip
-          in: query
-          required: false
-          schema:
-            type: string
-          example: 172.67.69.160
         - name: days
           in: query
           required: false

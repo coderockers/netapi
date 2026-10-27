@@ -30,7 +30,7 @@ Public statistics answer with `Cache-Control: public, max-age=3600`; everything 
 
 | method | parameters | answer |
 |---|---|---|
-| `compromised-check` | `value` = domain, hostname, URL or IP | `listed_now` (seen in the last 24 h), `listed_ever`, `first_seen`, `last_seen`, `block_reason`, `registrar`; parent domains of a hostname are tried too (`matched_value`) |
+| `compromised-check` | `value` = domain, hostname or URL | `listed_now` (seen in the last 24 h), `listed_ever`, `first_seen`, `last_seen`, `block_reason`, `registrar`; parent domains of a hostname are tried too (`matched_value`) |
 | `search-new` | `q` (4+ characters), `days` 1-7 (default 1), `tld`, `match` = `contains` \| `starts`, `limit` | `results[]` (`domain`, `tld`, `added_on`), `truncated` |
 | `tld-stats` | `tld` | registry, `domains`, `new_24h`, `deleted_24h`, `change` over 7/30/90/365 days, `rank_by_size`, `compromised`, `top_1m`, `policies`, `description` |
 | `domain-rank` | `domain` | `rank` in the NetAPI Top 1M, `rank_in_tld` |
@@ -54,7 +54,6 @@ https://netapi.com/api-json/?method=tld-stats&tld=de
 | method | parameters | answer |
 |---|---|---|
 | `lookup-domain` | `domain` | `dns[]`, `hostname`, `ip`, `ip_country`, `registered_on`, `expires_on`, `registrar`, `whois_checked_on`, `in_compromised_feed` (listed in the compromised feed right now) (`found: false` when unknown) |
-| `lookup-ip` | `ip` | `domains[]` (up to 3) with `hostname` and `dns[]` |
 | `download-url` | one of `zone_tld` (or `all-zones`), `dns_alias` (from `dns-provider-info`), `registrar_id` (from `registrar-info`); `dataset_type` = `list` \| `dataset`; `filter_type` = `active` \| `new` \| `deleted` (zones only, default `active`); `format` = `gz` \| `plain` | `download_url` valid 24 hours, `file_name`, `size_bytes`, `file_date`, `columns` — the same rules as [download](download.md), [download-dns](download-dns.md) and [download-whois](download-whois.md) (lists with any plan, datasets need Plus or Pro; deleted lists only for zones whose registry publishes the complete zone daily) |
 
 ## Request limits

@@ -1,6 +1,6 @@
 # `compromised-zone` — currently compromised domains in one TLD (free)
 
-Returns the subset of the current compromised-domain feed that belongs to a single domain zone — for example every `.com` or `.uk` domain reported in the last 24 hours. IP addresses and historical entries are not included.
+Returns the subset of the current compromised-domain feed that belongs to a single domain zone — for example every `.com` or `.uk` domain reported in the last 24 hours. Historical entries are not included.
 
 - **Authentication:** none
 - **Response:** plain text, one domain per line, served as a file download

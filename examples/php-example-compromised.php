@@ -1,9 +1,9 @@
 <?php
 /**
- * Read the NetAPI compromised-domain / compromised-IP feed.
+ * Read the NetAPI compromised-domain feed.
  *
  * The feed is free and needs no token. The first line is a "#" comment with
- * the list name and date; every other line is one domain or IP address.
+ * the list name and date; every other line is one domain.
  *
  * Run from the command line: php php-example-compromised.php
  */
@@ -12,7 +12,7 @@ $apiUrl = 'https://netapi.com/api2/';
 
 $params = [
     'method'       => 'compromised',
-    'dataset_type' => 'url', // 'url', 'ip', 'url-all' or 'ip-all'
+    'dataset_type' => 'url', // 'url' (current) or 'url-all' (historical)
 ];
 
 $ch = curl_init($apiUrl . '?' . http_build_query($params));
