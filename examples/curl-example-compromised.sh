@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 # Download the current compromised-domain feed (free, no token required).
-# dataset_type: url (current) | url-all (historical)
-# Add &format=hosts for "0.0.0.0 domain" lines (hosts-based blockers).
+# dataset_type: url | ip | url-all | ip-all
 #
 # Usage: sh curl-example-compromised.sh
 

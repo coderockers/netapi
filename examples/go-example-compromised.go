@@ -1,9 +1,9 @@
 //go:build ignore
 
-// Read the NetAPI compromised-domain feed.
+// Read the NetAPI compromised-domain / compromised-IP feed.
 //
 // The feed is free and needs no token. The first line is a "#" comment with
-// the list name and date; every other line is one domain.
+// the list name and date; every other line is one domain or IP address.
 //
 // Standard library only. Usage: go run go-example-compromised.go
 package main
@@ -23,7 +23,7 @@ const apiURL = "https://netapi.com/api2/"
 func main() {
 	params := url.Values{}
 	params.Set("method", "compromised")
-	params.Set("dataset_type", "url") // "url" (current) or "url-all" (historical)
+	params.Set("dataset_type", "url") // "url", "ip", "url-all" or "ip-all"
 
 	resp, err := http.Get(apiURL + "?" + params.Encode())
 	if err != nil {

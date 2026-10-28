@@ -1,6 +1,6 @@
-# `compromised` — compromised domains (free)
+# `compromised` — compromised domains and IP addresses (free)
 
-Returns NetAPI's threat-intelligence feed: domain names currently reported as compromised or malicious by public threat feeds and notifications, or the complete history of every domain ever listed.
+Returns NetAPI's threat-intelligence feed: domain names and IP addresses currently reported as compromised or malicious by public threat feeds, or the complete history of everything ever listed.
 
 - **Authentication:** none
 - **Response:** plain text, one entry per line, served as a file download
@@ -9,38 +9,38 @@ Returns NetAPI's threat-intelligence feed: domain names currently reported as co
 ## Request
 
 ```
-GET https://netapi.com/api2/?method=compromised&dataset_type={url|url-all}[&format=hosts]
+GET https://netapi.com/api2/?method=compromised&dataset_type={ip|url|ip-all|url-all}
 ```
 
-| `dataset_type` | Contents |
-|---|---|
-| `url` | Domains seen on threat feeds in the last 24 hours — the **current** blocklist |
-| `url-all` | Every domain ever listed since the feed started (more than a million) |
-
-| `format` (optional) | Output |
-|---|---|
-| — | one domain per line (filenames `compromised_url.csv`, `compromised_url_history.csv`) |
-| `hosts` | one `0.0.0.0 domain` line per domain, for hosts-based blockers such as dnsmasq `addn-hosts`, AdAway or Pi-hole (filenames `compromised_domains_hosts.txt`, `compromised_domains_history_hosts.txt`) |
+| `dataset_type` | Contents | Size (Aug 2026) |
+|---|---|---|
+| `url` | Domains seen on threat feeds in the last 24 hours — the **current** blocklist | ~300,000 |
+| `ip` | IP addresses seen in the last 24 hours — the **current** blocklist | ~45,000 |
+| `url-all` | Every domain ever listed since the feed started | ~1.1 million |
+| `ip-all` | Every IP address ever listed | ~1.9 million |
 
 ## Response
 
-The first line is a comment starting with `#` that names the list and its date; every following line is one domain. There is no CSV header.
+The first line is a comment with the list name and generation date; every following line is one domain or one IP address. There is no CSV header.
 
-`dataset_type=url`:
+`dataset_type=url` (filename `compromised_url.csv`):
 
 ```
-# NetAPI.com - currently compromised URLs (2026-10-27).
+# Current compromised URLs (2026-08-23).
 000359.xyz
 00zyku.com
+01.losbuhosweb.com.mx
 ```
 
-`dataset_type=url&format=hosts`:
+`dataset_type=ip` (filename `compromised_ip.csv`):
 
 ```
-# NetAPI.com - currently compromised domains (2026-10-27), hosts format.
-0.0.0.0 000359.xyz
-0.0.0.0 00zyku.com
+# Current compromised IPs (2026-08-23).
+182.127.178.111
+61.52.45.140
 ```
+
+Historical lists use the filenames `compromised_url_history.csv` and `compromised_ip_history.csv`.
 
 ## Errors
 
@@ -51,11 +51,10 @@ The first line is a comment starting with `#` that names the list and its date; 
 
 ## Examples
 
-cURL — save today's domain blocklist, and the same list as a hosts file:
+cURL — save today's domain blocklist:
 
 ```bash
 curl -s "https://netapi.com/api2/?method=compromised&dataset_type=url" -o compromised_url.csv
-curl -s "https://netapi.com/api2/?method=compromised&dataset_type=url&format=hosts" -o compromised_domains_hosts.txt
 ```
 
 Python — load the current domains into a set and check a few names:
@@ -68,7 +67,7 @@ resp = requests.get(
 )
 resp.raise_for_status()
 
-blocked = {line.strip() for line in resp.text.splitlines() if line.strip() and not line.startswith("#")}
+blocked = {line.strip() for line in resp.text.splitlines() if line and not line.startswith("#")}
 print(len(blocked), "domains currently listed")
 
 for domain in ("example.com", "00zyku.com"):
@@ -78,9 +77,7 @@ for domain in ("example.com", "00zyku.com"):
 ## Notes
 
 - "Last 24 hours" means the entry was present on at least one of the upstream threat feeds within the last day. Entries drop off the current list as soon as they are no longer reported, which is why the current list is the one to use for blocking.
-- The `url-all` list is historical. A domain appearing there was listed at some point; it is not necessarily compromised now — usually it has been cleaned up or the domain has expired.
-- The lists contain host names only (registered domains and, where reported, subdomains) — no schemes or paths.
-- A single domain can be checked without downloading the list: [`compromised-check`](json-api.md) in the JSON API.
-- The feed is updated daily. Per-zone breakdowns are available through [`compromised-zone`](compromised-zone.md); statistics and charts on [netapi.com/compromised-urls/](https://netapi.com/compromised-urls/); abuse research by TLD and registrar at [netapi.com/research/](https://netapi.com/research/).
-- A domain listed by mistake can be reported through the [removal request form](https://netapi.com/compromised-urls/removal/).
+- The `*-all` lists are historical. A domain or IP appearing there was listed at some point; it is not necessarily compromised now — usually it has been cleaned up or the domain has expired.
+- The `url` lists contain host names only (registered domains and, where reported, subdomains) — no schemes or paths.
+- Feeds are rebuilt daily. Per-zone breakdowns are available through [`compromised-zone`](compromised-zone.md); statistics and charts on [netapi.com/compromised-urls/](https://netapi.com/compromised-urls/) and [netapi.com/compromised-ips/](https://netapi.com/compromised-ips/); abuse research by TLD and registrar at [netapi.com/research/](https://netapi.com/research/).
 - Web reference: [netapi.com/help/api/#compromised-api](https://netapi.com/help/api/#compromised-api).

@@ -3,9 +3,9 @@ info:
   title: NetAPI Domain Data (JSON API)
   version: 1.0.0
   description: |
-    Domain data from NetAPI as JSON: is a domain in the compromised feed, newly registered domains that
+    Domain data from NetAPI as JSON: is a domain or IP in the compromised feed, newly registered domains that
     contain a string, statistics of a TLD, registrar or DNS provider, the NetAPI Top 1M popularity ranking, and
-    (with a NetAPI plan) domain lookups and download links for domain lists.
+    (with a NetAPI plan) domain / IP lookups and download links for domain lists.
 
     One operation per method (`/api-json/<method>`), built for GPT Actions and other OpenAPI-driven tools. The
     free operations need no sign-in; a signed-in NetAPI account raises the request limits, a plan unlocks the
@@ -31,13 +31,13 @@ paths:
   /api-json/compromised-check:
     get:
       operationId: checkCompromised
-      summary: Is a domain in the NetAPI compromised feed (malware, phishing, abuse)?
+      summary: Is a domain or IP address in the NetAPI compromised feed (malware, phishing, abuse)?
       description: Answers whether the value was seen in the feed in the last 24 hours (listed_now) or ever (listed_ever), with first / last seen dates, the block reason and the registrar. Subdomains are matched against their parent domains too. Free.
       parameters:
         - name: value
           in: query
           required: true
-          description: Domain name (also a URL or host name).
+          description: Domain name (also a URL or host name) or an IPv4 / IPv6 address.
           schema: { type: string, example: example.com }
       responses:
         '200':
@@ -326,6 +326,27 @@ paths:
       responses:
         '200':
           description: Domain data (found false when the domain is not in the dataset)
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api-json/lookup-ip:
+    get:
+      operationId: lookupIp
+      summary: Reverse IP lookup - up to 3 domains hosted on an IP address
+      description: Needs a NetAPI account with an active plan.
+      parameters:
+        - name: ip
+          in: query
+          required: true
+          schema: { type: string, example: 93.184.216.34 }
+      responses:
+        '200':
+          description: Domains on the IP
           content:
             application/json:
               schema: { type: object, additionalProperties: true }

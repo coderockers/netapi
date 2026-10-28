@@ -1,7 +1,7 @@
-"""Read the NetAPI compromised-domain feed.
+"""Read the NetAPI compromised-domain / compromised-IP feed.
 
 The feed is free and needs no token. The first line is a "#" comment with the
-list name and date; every other line is one domain.
+list name and date; every other line is one domain or IP address.
 
 Requires: requests (pip install requests)
 """
@@ -12,14 +12,14 @@ API_URL = "https://netapi.com/api2/"
 
 params = {
     "method": "compromised",
-    "dataset_type": "url",  # "url" (current) or "url-all" (historical)
+    "dataset_type": "url",  # "url", "ip", "url-all" or "ip-all"
 }
 
 resp = requests.get(API_URL, params=params, timeout=120)
 if resp.status_code != 200:
     raise SystemExit(f"HTTP {resp.status_code}: {resp.text}")
 
-entries = [line.strip() for line in resp.text.splitlines() if line.strip() and not line.startswith("#")]
+entries = [line.strip() for line in resp.text.splitlines() if line and not line.startswith("#")]
 print(f"{len(entries):,} entries in the current list")
 print("First 10:", entries[:10])
 
