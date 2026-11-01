@@ -32,7 +32,7 @@ paths:
     get:
       operationId: checkCompromised
       summary: Is a domain or IP address in the NetAPI compromised feed (malware, phishing, abuse)?
-      description: Answers whether the value was seen in the feed in the last 24 hours (listed_now) or ever (listed_ever), with first / last seen dates, the block reason and the registrar. Subdomains are matched against their parent domains too. Free.
+      description: Answers whether the value was seen in the feed in the last 24 hours (listed_now) or ever (listed_ever), with first / last seen dates, the block reason and the registrar. Subdomains are matched against their parent domains too. IP addresses are checked against the feed of NetAPI Nightwatch, NetAPI's own honeypot network. Free.
       parameters:
         - name: value
           in: query

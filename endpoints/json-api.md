@@ -30,7 +30,7 @@ Public statistics answer with `Cache-Control: public, max-age=3600`; everything 
 
 | method | parameters | answer |
 |---|---|---|
-| `compromised-check` | `value` = domain, hostname, URL or IP | `listed_now` (seen in the last 24 h), `listed_ever`, `first_seen`, `last_seen`, `block_reason`, `registrar`; parent domains of a hostname are tried too (`matched_value`) |
+| `compromised-check` | `value` = domain, hostname, URL or IP | `listed_now` (seen in the last 24 h), `listed_ever`, `first_seen`, `last_seen`, `block_reason`, `registrar`; parent domains of a hostname are tried too (`matched_value`). An IP address is checked against the compromised IP feed of NetAPI Nightwatch, NetAPI's honeypot network (`block_reason` such as `NetAPI network sensors: service exploit`) |
 | `search-new` | `q` (4+ characters), `days` 1-7 (default 1), `tld`, `match` = `contains` \| `starts`, `limit` | `results[]` (`domain`, `tld`, `added_on`), `truncated` |
 | `tld-stats` | `tld` | registry, `domains`, `new_24h`, `deleted_24h`, `change` over 7/30/90/365 days, `rank_by_size`, `compromised`, `top_1m`, `policies`, `description` |
 | `domain-rank` | `domain` | `rank` in the NetAPI Top 1M, `rank_in_tld` |

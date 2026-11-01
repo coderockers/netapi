@@ -1,6 +1,6 @@
 # NetAPI — Domain Data API (v2)
 
-[NetAPI](https://netapi.com/) provides daily-updated domain data as downloadable CSV files and a small set of lookup endpoints: full domain lists for more than 1,500 TLDs, detailed datasets (nameservers, hosting IP, country, emails, phone numbers, Majestic rank), newly registered domains, domains grouped by DNS provider or registrar, and free threat-intelligence feeds.
+[NetAPI](https://netapi.com/) provides daily-updated domain data as downloadable CSV files and a small set of lookup endpoints: full domain lists for more than 1,500 TLDs, detailed datasets (nameservers, hosting IP, country, emails, phone numbers, Majestic rank), newly registered domains, domains grouped by DNS provider or registrar, and free threat-intelligence feeds: compromised IP addresses caught by NetAPI Nightwatch, our own honeypot network (hourly, with threat data and firewall formats), and compromised domains.
 
 This repository is the official companion to the API. It documents every endpoint, ships an OpenAPI specification and contains ready-to-run examples in cURL, Python, Node.js, Go and PHP.
 
@@ -58,7 +58,7 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 
 | Method | Description | Docs |
 |---|---|---|
-| `compromised` | Compromised domains or IP addresses — current (last 24 hours) or all-time | [compromised.md](endpoints/compromised.md) |
+| `compromised` | Compromised IP addresses (NetAPI Nightwatch honeypot network, hourly: plain, CSV / JSON Lines with threat data, ipset / nftables / iptables / MikroTik / CIDR, filters) or compromised domains (daily, plain or hosts format), current (last 24 hours) or all-time | [compromised.md](endpoints/compromised.md) |
 | `compromised-zone` | Currently compromised domains in one TLD | [compromised-zone.md](endpoints/compromised-zone.md) |
 
 ### JSON API (`/api-json/`)
@@ -67,7 +67,7 @@ The same data as JSON documents, for integrations and AI tools: `GET https://net
 
 | Method | Description | Auth |
 |---|---|---|
-| `compromised-check` | Is a domain or IP in the compromised feed? | none |
+| `compromised-check` | Is a domain or IP in the compromised feed? (IP addresses are checked against the NetAPI Nightwatch feed) | none |
 | `search-new` | Newly registered domains (last 1-7 days) that contain a string | none |
 | `tld-stats` | Registry, size, new / deleted domains, growth, abuse figures of a TLD | none |
 | `domain-rank` | Rank of a domain in the NetAPI Top 1M | none |
@@ -122,7 +122,7 @@ Keep your token private: it identifies your account, and every request made with
 
 - Reference lists and downloads are CSV with a header row. Fields that may contain commas (provider names, registrar names, email and phone lists) are double-quoted.
 - `lookup-domain` and `lookup-ip` return CSV rows **without** a header. When nothing is found they return the text `NOT FOUND` with HTTP 200.
-- `compromised` and `compromised-zone` return one entry per line, preceded by a single `#` comment line with the list name and date.
+- `compromised` and `compromised-zone` return one entry per line, preceded by a single `#` comment line with the list name and date. The IP lists also come as CSV / JSON Lines with threat data and in firewall formats (`format=csv|jsonl|ipset|nftables|iptables|mikrotik|cidr`), see [compromised.md](endpoints/compromised.md).
 - Downloads are served as `application/octet-stream` with a `Content-Disposition` filename, e.g. `net_active_list.csv.gz`.
 - Plain-text downloads can be very large (the `.com` dataset is several gigabytes uncompressed). Use `format=plain` only when you really need it.
 
@@ -212,6 +212,11 @@ Accounts younger than 48 hours have lower daily caps.
 | [examples/go-example-compromised.go](examples/go-example-compromised.go) | read the compromised feed in Go |
 | [examples/php-example.php](examples/php-example.php) | download and decompress a zone list in PHP |
 | [examples/php-example-compromised.php](examples/php-example-compromised.php) | read the compromised feed in PHP |
+| [examples/curl-example-compromised-ips.sh](examples/curl-example-compromised-ips.sh) | compromised IPs: the live list as an nftables set and a filtered CSV with threat data |
+| [examples/python-example-compromised-ips.py](examples/python-example-compromised-ips.py) | compromised IPs with threat data (JSON Lines), streamed line by line |
+| [examples/node-example-compromised-ips.js](examples/node-example-compromised-ips.js) | the same in Node.js 18+ |
+| [examples/go-example-compromised-ips.go](examples/go-example-compromised-ips.go) | the same in Go (`go run examples/go-example-compromised-ips.go`) |
+| [examples/php-example-compromised-ips.php](examples/php-example-compromised-ips.php) | the same in PHP |
 | [examples/curl-example-json.sh](examples/curl-example-json.sh) | JSON API: compromised check, new-domain search, domain lookup with cURL |
 | [examples/python-example-json.py](examples/python-example-json.py) | JSON API in Python (standard library) |
 | [examples/node-example-json.js](examples/node-example-json.js) | JSON API in Node.js 18+ |
@@ -230,7 +235,7 @@ Accounts younger than 48 hours have lower daily caps.
 
 - Zones with `isUpdatedDaily=1` (the gTLDs and a few ccTLDs) are fully refreshed every day, and their `new` lists are available.
 - Zones with `isUpdatedDaily=0` (most ccTLDs, including large ones such as `.de` or `.uk`) get partial updates every day and a full refresh every one to two months. Only the `active` list is available for these zones.
-- DNS-provider and registrar datasets, the compromised feeds and the Top 1M ranking are rebuilt daily.
+- DNS-provider and registrar datasets, the compromised domain feed and the Top 1M ranking are rebuilt daily. The compromised IP feed is rebuilt every hour.
 - `zones`, `dns` and `registrars` return live counts, so the numbers change from day to day.
 
 ## Crawler
