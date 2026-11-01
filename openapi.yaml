@@ -190,7 +190,7 @@ paths:
         - name: category
           in: query
           required: false
-          description: "`compromised` IP lists: `A` infection attempts, `B` password guessing, `C` exploits, several separated by commas."
+          description: "`compromised` IP lists: `A` infection attempts, `B` password guessing, `C` exploits, `D` form spam, several separated by commas."
           schema:
             type: string
           example: B,C
@@ -325,7 +325,7 @@ paths:
             `405 Method Not Allowed: Unsupported method (x).`,
             `405 Method Not Allowed: Invalid zone tld.`,
             `405 Method Not Allowed: Missing dataset type.`,
-            `405 Method Not Allowed: Invalid category: use A, B or C, separated by commas.`
+            `405 Method Not Allowed: Invalid category: use A, B, C or D, separated by commas.`
           content:
             text/plain:
               schema:
