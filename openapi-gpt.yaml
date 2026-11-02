@@ -49,7 +49,7 @@ paths:
                 properties:
                   value: { type: string }
                   type: { type: string, enum: [domain, ip] }
-                  listed_now: { type: boolean, description: Seen in the feed within the last 24 hours }
+                  listed_now: { type: boolean, description: "Seen in the feed within the last 24 hours (domains) or 48 hours (IPs)" }
                   listed_ever: { type: boolean }
                   matched_value: { type: [string, 'null'], description: The domain that matched (a parent domain for host names) }
                   first_seen: { type: [string, 'null'] }

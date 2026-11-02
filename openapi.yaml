@@ -183,14 +183,14 @@ paths:
         - name: window
           in: query
           required: false
-          description: "`compromised`, `dataset_type=ip-all` only: `7d` or `30d`, addresses that attacked within the last 7 or 30 days."
+          description: "`compromised`: with `dataset_type=ip-all` `24h`, `48h`, `7d` or `30d`, addresses that attacked within that time; `dataset_type=ip` is the 48-hour list, `24h` narrows it."
           schema:
             type: string
-            enum: [24h, 7d, 30d]
+            enum: [24h, 48h, 7d, 30d]
         - name: category
           in: query
           required: false
-          description: "`compromised` IP lists: `A` infection attempts, `B` password guessing, `C` exploits, `D` form spam, several separated by commas."
+          description: "`compromised` IP lists: `A` malware (infection attempts and the servers they download from), `B` password guessing, `C` exploits, `D` form spam, several separated by commas."
           schema:
             type: string
           example: B,C

@@ -17,7 +17,7 @@ GET https://netapi.com/api2/?method=compromised&dataset_type={ip|ip-all|url|url-
 
 | `dataset_type` | Contents | Size (Nov 2026) |
 |---|---|---|
-| `ip` | IP addresses that attacked NetAPI Nightwatch in the last 24 hours, the **live** blocklist | ~7,500 |
+| `ip` | IP addresses that attacked NetAPI Nightwatch in the last 48 hours, the **live** blocklist | ~10,000 |
 | `ip-all` | Every IP address ever listed in the feed | ~12,000 |
 | `url` | Domains seen on threat feeds in the last 24 hours, the **current** blocklist | ~143,000 |
 | `url-all` | Every domain ever listed since the feed started | ~1.2 million |
@@ -61,8 +61,8 @@ The parameters of the [list builder](https://netapi.com/compromised-ips/#build).
 
 | Parameter | Values |
 |---|---|
-| `window` | With `dataset_type=ip-all`: `7d` or `30d`, the addresses that attacked within the last 7 or 30 days. `dataset_type=ip` is always the 24-hour list |
-| `category` | `A` infection attempts, `B` password guessing, `C` exploits, `D` form spam (messages posted through the contact or comment forms of sites that have no real visitors). Several separated by commas: `category=B,C` |
+| `window` | With `dataset_type=ip-all`: `24h`, `48h`, `7d` or `30d`, the addresses that attacked within that time. `dataset_type=ip` is the 48-hour list; `window=24h` narrows it to 24 hours |
+| `category` | `A` malware (infection attempts and the servers they download from), `B` password guessing, `C` exploits, `D` form spam (messages posted through the contact or comment forms of sites that have no real visitors). Several separated by commas: `category=B,C` |
 | `threat` | Attack types, for example `ssh-bruteforce,rdp-bruteforce`. An address matches when it did one of them within the window |
 | `country` | Two-letter country codes of the addresses to keep, for example `country=cn,ru` |
 | `country_not` | Two-letter country codes of the addresses to leave out. Use `country` or `country_not`, not both |
@@ -92,7 +92,7 @@ Every link returns the list as of the last hourly rebuild, so a cron job or a fi
 |---|---|
 | `ip` | IPv4 address |
 | `first_seen`, `last_seen` | First and latest attack on our sensors, UTC, ISO 8601 |
-| `category` | `A` infection attempt, `B` password guessing, `C` exploit, `D` form spam (the most severe one seen) |
+| `category` | `A` malware (infection attempt or payload server), `B` password guessing, `C` exploit, `D` form spam (the most severe one seen) |
 | `top_threat` | The most severe attack type of the address |
 | `threats` | CSV: attack types joined with `\|`. JSON: objects with `type`, `name`, `family`, `cve`, `mitre` (MITRE ATT&CK technique IDs), `first`, `last`, `days` |
 | `country`, `asn`, `as_name` | Country code and network of the address |
@@ -144,8 +144,8 @@ All errors are plain text.
 | 405 | `405 Method Not Allowed: Missing list type.` (`dataset_type` is missing) |
 | 405 | `405 Method Not Allowed: Invalid list type.` |
 | 405 | `405 Method Not Allowed: format=hosts is available for the domain lists only (dataset_type=url or url-all).` |
-| 405 | `405 Method Not Allowed: window=7d and window=30d work with dataset_type=ip-all (dataset_type=ip is the 24-hour list).` |
-| 405 | `405 Method Not Allowed: Invalid window: use 24h, 7d or 30d.` |
+| 405 | `405 Method Not Allowed: window=7d and window=30d work with dataset_type=ip-all (dataset_type=ip is the 48-hour list).` |
+| 405 | `405 Method Not Allowed: Invalid window: use 24h, 48h, 7d or 30d.` |
 | 405 | `405 Method Not Allowed: Invalid category: use A, B, C or D, separated by commas.` (likewise for `threat`, `country`, `country_not`) |
 | 405 | `405 Method Not Allowed: Use country or country_not, not both.` |
 | 405 | `405 Method Not Allowed: Invalid min_sensors: a number from 1 to 100.` |
@@ -179,7 +179,7 @@ Complete examples in five languages: [examples/](../examples/) (`*-example-compr
 ## Notes
 
 - The IP feed lists single IPv4 addresses only, no network ranges. `format=cidr` merges neighbouring addresses into blocks.
-- An address stays on the live list (`ip`) for 24 hours after its last attack. Scanners of known research and security companies are not listed.
+- An address stays on the live list (`ip`) for 48 hours after its last attack. Scanners of known research and security companies are not listed.
 - The `*-all` lists are historical. An address or domain there was listed at some point and is not necessarily malicious now.
 - The `url` lists contain host names only (registered domains and, where reported, subdomains), no schemes or paths.
 - To check a single domain or IP address, use [`compromised-check`](json-api.md) of the JSON API. Per-zone domain lists: [`compromised-zone`](compromised-zone.md). Abuse research by TLD and registrar: [netapi.com/research/](https://netapi.com/research/).
