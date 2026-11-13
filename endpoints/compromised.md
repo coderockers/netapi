@@ -55,6 +55,12 @@ Without `format` (or with `format=plain`) the response is one IPv4 address per l
 
 Any other `format` value is ignored and the plain list is returned, as before. `format=hosts` is for the domain lists only (405 on the IP lists).
 
+`header=0` leaves out the first comment line of the plain list, so every line is an IP address. For tools that read each line as an entry:
+
+```
+https://netapi.com/api2/?method=compromised&dataset_type=ip&header=0
+```
+
 ### Filters
 
 The parameters of the [list builder](https://netapi.com/compromised-ips/#build). Combine them freely with any format.
@@ -132,6 +138,8 @@ JSON Lines (one object per line, shown wrapped here):
 ```
 https://netapi.com/api2/?method=compromised&dataset_type=url&format=hosts
 ```
+
+`header=0` leaves out the first comment line here too, with or without `format=hosts`: `https://netapi.com/api2/?method=compromised&dataset_type=url&header=0`.
 
 A domain listed by mistake can be reported through the [removal form](https://netapi.com/compromised-urls/removal/).
 
