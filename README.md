@@ -252,3 +252,7 @@ Website metadata (hostname, emails, phone numbers) is collected by our crawler, 
 
 - Questions about the API or your account: [netapi.com/contact-us/](https://netapi.com/contact-us/)
 - Mistakes in this documentation: open an issue or a pull request in this repository.
+
+## Mirror
+
+A read-only copy of this repository is on GitLab: https://gitlab.com/netapi-com/netapi (synced on every push). Issues and pull requests here, please.
