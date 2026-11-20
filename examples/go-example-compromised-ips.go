@@ -70,7 +70,7 @@ func top(counter map[string]int, n int) []pair {
 func main() {
 	params := url.Values{}
 	params.Set("method", "compromised")
-	params.Set("dataset_type", "ip") // "ip" = last 24 hours, "ip-all" = every address ever listed
+	params.Set("dataset_type", "ip") // "ip" = last 48 hours, "ip-all" = last 30 days
 	params.Set("format", "jsonl")
 	// Optional filters, the same as the list builder on https://netapi.com/compromised-ips/
 	// params.Set("category", "B,C")

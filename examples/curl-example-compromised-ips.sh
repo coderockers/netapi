@@ -2,7 +2,7 @@
 # Compromised IP addresses caught by NetAPI Nightwatch, NetAPI's own honeypot network
 # (free, no token required, rebuilt every hour).
 #
-# 1. The live list (last 24 hours) as an nftables set, ready for `nft -f`.
+# 1. The live list (last 48 hours) as an nftables set, ready for `nft -f`.
 # 2. A filtered list with threat data: addresses that guessed passwords (category B)
 #    in the last 7 days and were seen by at least two sensors, as CSV.
 #

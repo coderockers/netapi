@@ -6,7 +6,7 @@ Two free threat-intelligence feeds behind one method:
 - **Compromised domains** (`dataset_type=url`, `url-all`): domain names reported as compromised or malicious by public feeds and notifications. Rebuilt daily. Available as a plain list or in hosts-file format.
 
 - **Authentication:** none
-- **Response:** plain text (or CSV / JSON Lines), served as a file download
+- **Response:** plain text (`text/plain; charset=utf-8`, or CSV / JSON Lines), served as a file download
 - **License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), free for any use with attribution to NetAPI
 
 ## Request
@@ -17,8 +17,8 @@ GET https://netapi.com/api2/?method=compromised&dataset_type={ip|ip-all|url|url-
 
 | `dataset_type` | Contents | Size (Nov 2026) |
 |---|---|---|
-| `ip` | IP addresses that attacked NetAPI Nightwatch in the last 48 hours, the **live** blocklist | ~10,000 |
-| `ip-all` | Every IP address ever listed in the feed | ~12,000 |
+| `ip` | IP addresses that attacked NetAPI Nightwatch in the last 48 hours, the **live** blocklist | ~29,000 |
+| `ip-all` | IP addresses that attacked NetAPI Nightwatch in the last 30 days (every address ever listed until 2026-11-20) | ~131,000 |
 | `url` | Domains seen on threat feeds in the last 24 hours, the **current** blocklist | ~143,000 |
 | `url-all` | Every domain ever listed since the feed started | ~1.2 million |
 
@@ -38,15 +38,15 @@ Without `format` (or with `format=plain`) the response is one IPv4 address per l
 1.10.214.100
 ```
 
-`dataset_type=ip-all` (filename `compromised_ip_history.csv`) starts with `# NetAPI.com - compromised IP addresses (historical).`
+`dataset_type=ip-all` (filename `compromised_ip_30d.csv`) starts with `# NetAPI.com - compromised IP addresses (last 30 days).`
 
 ### Output formats
 
 | `format` | Contents | Filename |
 |---|---|---|
-| `plain` (default) | One IP address per line, as above | `compromised_ip.csv`, `compromised_ip_history.csv` |
-| `csv` | One row per address with threat data, header row first (fields below) | `compromised_ips_live.csv`, `compromised_ips_history.csv` |
-| `jsonl` | One JSON object per address (JSON Lines, fields below) | `compromised_ips_live.jsonl`, `compromised_ips_history.jsonl` |
+| `plain` (default) | One IP address per line, as above | `compromised_ip.csv`, `compromised_ip_30d.csv` |
+| `csv` | One row per address with threat data, header row first (fields below) | `compromised_ips_live.csv`, `compromised_ips_30d.csv` |
+| `jsonl` | One JSON object per address (JSON Lines, fields below) | `compromised_ips_live.jsonl`, `compromised_ips_30d.jsonl` |
 | `ipset` | `ipset save` layout for the set `netapi-compromised`. Load with `ipset restore -exist < file` | `compromised_ips_custom.ipset` |
 | `nftables` | The set `compromised_ips` in the table `inet netapi`. Load with `nft -f file`, drop with a rule such as `ip saddr @compromised_ips drop` | `compromised_ips_custom.nft` |
 | `iptables` | The chain `NETAPI-COMPROMISED` with one DROP rule per address. Load with `iptables-restore --noflush < file` and jump to the chain from INPUT | `compromised_ips_custom.rules` |
@@ -60,6 +60,22 @@ Any other `format` value is ignored and the plain list is returned, as before. `
 ```
 https://netapi.com/api2/?method=compromised&dataset_type=ip&header=0
 ```
+
+### Fixed file names
+
+The same plain lists without the comment line, under a fixed file name. For firewalls and router scripts that name their
+cache file after the last part of the URL (no query string). Only `token` and `source` are read, other parameters are
+ignored.
+
+| URL | Same as |
+|---|---|
+| `https://netapi.com/api2/netapi-compromised-ips.txt` | `dataset_type=ip&header=0` (live, 48 hours) |
+| `https://netapi.com/api2/netapi-compromised-ips-30d.txt` | `dataset_type=ip-all&header=0` (last 30 days) |
+| `https://netapi.com/api2/netapi-compromised-domains.txt` | `dataset_type=url&header=0` |
+| `https://netapi.com/api2/netapi-compromised-domains-hosts.txt` | `dataset_type=url&format=hosts&header=0` |
+
+An IP address listed by mistake can be checked and removed by its owner on [netapi.com/compromised-ips/removal/](https://netapi.com/compromised-ips/removal/)
+(email confirmation, a new attack lists it again).
 
 ### Filters
 
@@ -141,7 +157,7 @@ https://netapi.com/api2/?method=compromised&dataset_type=url&format=hosts
 
 `header=0` leaves out the first comment line here too, with or without `format=hosts`: `https://netapi.com/api2/?method=compromised&dataset_type=url&header=0`.
 
-A domain listed by mistake can be reported through the [removal form](https://netapi.com/compromised-urls/removal/).
+A domain listed by mistake can be reported through the [removal form](https://netapi.com/compromised-urls/removal/) (email confirmation, reviewed by NetAPI). Fixed file names of the domain lists: see [Fixed file names](#fixed-file-names).
 
 ## Errors
 
@@ -187,8 +203,8 @@ Complete examples in five languages: [examples/](../examples/) (`*-example-compr
 ## Notes
 
 - The IP feed lists single IPv4 addresses only, no network ranges. `format=cidr` merges neighbouring addresses into blocks.
-- An address stays on the live list (`ip`) for 48 hours after its last attack. Scanners of known research and security companies are not listed.
-- The `*-all` lists are historical. An address or domain there was listed at some point and is not necessarily malicious now.
+- An address stays on the live list (`ip`) for 48 hours after its last attack and on `ip-all` for 30 days. Scanners of known research and security companies are not listed.
+- `url-all` is historical: a domain there was listed at some point and is not necessarily malicious now. `ip-all` holds the last 30 days only.
 - The `url` lists contain host names only (registered domains and, where reported, subdomains), no schemes or paths.
 - To check a single domain or IP address, use [`compromised-check`](json-api.md) of the JSON API. Per-zone domain lists: [`compromised-zone`](compromised-zone.md). Abuse research by TLD and registrar: [netapi.com/research/](https://netapi.com/research/).
 - Web reference: [netapi.com/help/api/#compromised-ips-api](https://netapi.com/help/api/#compromised-ips-api) and [#compromised-domains-api](https://netapi.com/help/api/#compromised-domains-api).

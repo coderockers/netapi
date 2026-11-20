@@ -120,7 +120,7 @@ paths:
             plus metadata).
 
             For `compromised`: `ip` (IP addresses that attacked NetAPI Nightwatch, NetAPI's honeypot network,
-            in the last 24 hours, rebuilt hourly), `ip-all` (all IPs ever listed), `url` (current domains),
+            in the last 48 hours, rebuilt hourly), `ip-all` (IPs of the last 30 days), `url` (current domains),
             `url-all` (all domains ever listed).
           schema:
             type: string

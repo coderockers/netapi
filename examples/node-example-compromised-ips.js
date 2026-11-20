@@ -18,7 +18,7 @@ const API_URL = "https://netapi.com/api2/";
 
 const params = new URLSearchParams({
   method: "compromised",
-  dataset_type: "ip", // "ip" = last 24 hours, "ip-all" = every address ever listed
+  dataset_type: "ip", // "ip" = last 48 hours, "ip-all" = last 30 days
   format: "jsonl",
   // Optional filters, the same as the list builder on https://netapi.com/compromised-ips/
   // category: "B,C",

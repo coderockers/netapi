@@ -58,7 +58,7 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 
 | Method | Description | Docs |
 |---|---|---|
-| `compromised` | Compromised IP addresses (NetAPI Nightwatch honeypot network, hourly: plain, CSV / JSON Lines with threat data, ipset / nftables / iptables / MikroTik / CIDR, filters) or compromised domains (daily, plain or hosts format), current (last 24 hours) or all-time | [compromised.md](endpoints/compromised.md) |
+| `compromised` | Compromised IP addresses (NetAPI Nightwatch honeypot network, hourly: plain, CSV / JSON Lines with threat data, ipset / nftables / iptables / MikroTik / CIDR, filters) or compromised domains (daily, plain or hosts format). IPs: live (48 hours) or last 30 days. Domains: current (24 hours) or all-time. Also under fixed file names such as `/api2/netapi-compromised-ips.txt` | [compromised.md](endpoints/compromised.md) |
 | `compromised-zone` | Currently compromised domains in one TLD | [compromised-zone.md](endpoints/compromised-zone.md) |
 
 ### JSON API (`/api-json/`)
