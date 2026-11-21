@@ -157,6 +157,39 @@ https://netapi.com/api2/?method=compromised&dataset_type=url&format=hosts
 
 `header=0` leaves out the first comment line here too, with or without `format=hosts`: `https://netapi.com/api2/?method=compromised&dataset_type=url&header=0`.
 
+### Domains with threat data
+
+`format=csv` and `format=jsonl` return the live list (`dataset_type=url` only) with the source of every domain. Filenames `compromised_domains.csv` and `compromised_domains.jsonl`:
+
+```
+https://netapi.com/api2/?method=compromised&dataset_type=url&format=csv
+```
+
+```
+domain,threat_type,evidence,first_seen,last_seen
+000359.xyz,cert-polska,,2026-11-18,2026-11-21
+```
+
+| Field | Meaning |
+|---|---|
+| `domain` | The domain name |
+| `threat_type` | The source the domain is listed under, for example `cert-polska` |
+| `evidence` | What NetAPI's own detection kept with the entry, for example the sinkhole nameserver. Empty in CSV and `null` in JSON for the CERT lists |
+| `first_seen` | The day the domain was first listed, UTC (`YYYY-MM-DD`) |
+| `last_seen` | The last day its source confirmed it, UTC |
+
+The CSV follows RFC 4180 (a quote inside a field is doubled). JSON Lines carries the same five fields, one object per line.
+
+### Without sinkholed domains
+
+`sinkholes=0` leaves out the sinkholed malware domains: domains that were taken over by a sinkhole and no longer serve anything harmful. A request to such a domain shows an infected device, so they belong in a SIEM or an IDS, while a DNS blocker gains nothing from them. It works with every format of the live list (`dataset_type=url` only). Filenames `compromised_domains_no_sinkholes.txt`, `compromised_domains_no_sinkholes_hosts.txt`, `compromised_domains_no_sinkholes.csv`, `compromised_domains_no_sinkholes.jsonl`:
+
+```
+https://netapi.com/api2/?method=compromised&dataset_type=url&sinkholes=0&format=hosts
+```
+
+Without the parameter the list is unchanged and holds every domain.
+
 A domain listed by mistake can be reported through the [removal form](https://netapi.com/compromised-urls/removal/) (email confirmation, reviewed by NetAPI). Fixed file names of the domain lists: see [Fixed file names](#fixed-file-names).
 
 ## Errors
@@ -168,6 +201,8 @@ All errors are plain text.
 | 405 | `405 Method Not Allowed: Missing list type.` (`dataset_type` is missing) |
 | 405 | `405 Method Not Allowed: Invalid list type.` |
 | 405 | `405 Method Not Allowed: format=hosts is available for the domain lists only (dataset_type=url or url-all).` |
+| 405 | `405 Method Not Allowed: format=csv, format=jsonl and sinkholes=0 are available for the live domain list only (dataset_type=url).` (sent with `dataset_type=url-all`) |
+| 503 | `503 Service Unavailable: The list is being rebuilt, try again in a few minutes.` (a list with threat data is not ready) |
 | 405 | `405 Method Not Allowed: window=7d and window=30d work with dataset_type=ip-all (dataset_type=ip is the 48-hour list).` |
 | 405 | `405 Method Not Allowed: Invalid window: use 24h, 48h, 7d or 30d.` |
 | 405 | `405 Method Not Allowed: Invalid category: use A, B, C or D, separated by commas.` (likewise for `threat`, `country`, `country_not`) |

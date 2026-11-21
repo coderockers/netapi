@@ -68,7 +68,7 @@ paths:
         | `download-whois` | `registrar_id`, `dataset_type`, `token` | `format` | token + plan |
         | `lookup-domain` | `domain`, `token` | — | token + plan |
         | `lookup-ip` | `ip`, `token` | — | token + plan |
-        | `compromised` | `dataset_type` (`ip`, `url`, `ip-all`, `url-all`) | `format`; IP lists also `window`, `category`, `threat`, `country`, `country_not`, `min_sensors` | none |
+        | `compromised` | `dataset_type` (`ip`, `url`, `ip-all`, `url-all`) | `format`; IP lists also `window`, `category`, `threat`, `country`, `country_not`, `min_sensors`; the live domain list also `sinkholes` | none |
         | `compromised-zone` | `zone_tld` | — | none |
 
         `dataset_type=dataset` on any download method requires the Plus plan or higher.
@@ -172,6 +172,8 @@ paths:
             Download methods: `plain` returns uncompressed CSV instead of `.csv.gz`. Plain files for large zones are several gigabytes.
 
             `compromised` with `dataset_type=url|url-all`: `hosts` returns `0.0.0.0 domain` lines for hosts-based blockers.
+            `compromised` with `dataset_type=url`: `csv` / `jsonl` return the live domain list with threat data
+            (`domain`, `threat_type`, `evidence`, `first_seen`, `last_seen`).
 
             `compromised` with `dataset_type=ip|ip-all`: `plain` (default, one IP per line), `csv` / `jsonl` (one row or JSON
             object per address with threat data: `ip`, `first_seen`, `last_seen`, `category`, `top_threat`, `threats`,
@@ -180,6 +182,13 @@ paths:
           schema:
             type: string
             enum: [plain, hosts, csv, jsonl, ipset, nftables, iptables, mikrotik, cidr]
+        - name: sinkholes
+          in: query
+          required: false
+          description: "`compromised` with `dataset_type=url`: `0` leaves out the sinkholed malware domains (domains taken over by a sinkhole, a detection signal rather than something to block). Works with every format of the live domain list."
+          schema:
+            type: string
+            enum: ["0"]
         - name: window
           in: query
           required: false
