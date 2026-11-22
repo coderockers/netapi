@@ -243,7 +243,7 @@ Complete examples in five languages: [examples/](../examples/) (`*-example-compr
 - The IP feed lists single IPv4 addresses only, no network ranges. `format=cidr` merges neighbouring addresses into blocks.
 - An address stays on the live list (`ip`) for 48 hours after its last attack and on `ip-all` for 30 days. Scanners of known research and security companies are not listed.
 - `url-all` is historical: a domain there was listed at some point and is not necessarily malicious now. `ip-all` holds the last 30 days only.
-- A domain leaves the live list when its source no longer confirms it: the day CERT Polska unblocks it, 3 days after it leaves a sinkhole nameserver, 48 hours after the link to confirmed phishing is gone.
+- A domain leaves the live list when its source no longer confirms it: the day CERT Polska unblocks it, 48 hours after it leaves a sinkhole nameserver, 48 hours after the link to confirmed phishing is gone.
 - The `url` lists contain host names only (registered domains and, where reported, subdomains), no schemes or paths.
 - To check a single domain or IP address, use [`compromised-check`](json-api.md) of the JSON API. Per-zone domain lists: [`compromised-zone`](compromised-zone.md). Abuse research by TLD and registrar: [netapi.com/research/](https://netapi.com/research/).
 - Web reference: [netapi.com/help/api/#compromised-ips-api](https://netapi.com/help/api/#compromised-ips-api) and [#compromised-domains-api](https://netapi.com/help/api/#compromised-domains-api).
