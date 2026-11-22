@@ -73,6 +73,8 @@ ignored.
 | `https://netapi.com/api2/netapi-compromised-ips-30d.txt` | `dataset_type=ip-all&header=0` (last 30 days) |
 | `https://netapi.com/api2/netapi-compromised-domains.txt` | `dataset_type=url&header=0` |
 | `https://netapi.com/api2/netapi-compromised-domains-hosts.txt` | `dataset_type=url&format=hosts&header=0` |
+| `https://netapi.com/api2/netapi-compromised-domains-short.txt` | `dataset_type=url&sinkholes=0&header=0` (without sinkholed domains) |
+| `https://netapi.com/api2/netapi-compromised-domains-short-hosts.txt` | `dataset_type=url&sinkholes=0&format=hosts&header=0` |
 
 An IP address listed by mistake can be checked and removed by its owner on [netapi.com/compromised-ips/removal/](https://netapi.com/compromised-ips/removal/)
 (email confirmation, a new attack lists it again).
