@@ -1,6 +1,6 @@
 # NetAPI — Domain Data API (v2)
 
-[NetAPI](https://netapi.com/) provides daily-updated domain data as downloadable CSV files and a small set of lookup endpoints: full domain lists for more than 1,500 TLDs, detailed datasets (nameservers, hosting IP, country, emails, phone numbers, Majestic rank), newly registered domains, domains grouped by DNS provider or registrar, and free threat-intelligence feeds: compromised IP addresses caught by NetAPI Nightwatch, our own honeypot network (hourly, with threat data and firewall formats), and compromised domains.
+[NetAPI](https://netapi.com/) provides daily-updated domain data as downloadable CSV files and a small set of lookup endpoints: full domain lists for more than 1,500 TLDs, detailed datasets (nameservers, hosting IP, country, emails, phone numbers, Majestic rank), newly registered domains, domains grouped by DNS provider or registrar, and free threat-intelligence feeds: compromised IP addresses caught by NetAPI Nightwatch, our own honeypot network (hourly, with threat data and firewall formats), and compromised domains (phishing confirmed by CERT Polska plus NetAPI's own detection of sinkholed malware domains and phishing infrastructure).
 
 This repository is the official companion to the API. It documents every endpoint, ships an OpenAPI specification and contains ready-to-run examples in cURL, Python, Node.js, Go and PHP.
 
@@ -58,7 +58,7 @@ All requests go to `https://netapi.com/api2/` and select the operation with the 
 
 | Method | Description | Docs |
 |---|---|---|
-| `compromised` | Compromised IP addresses (NetAPI Nightwatch honeypot network, hourly: plain, CSV / JSON Lines with threat data, ipset / nftables / iptables / MikroTik / CIDR, filters) or compromised domains (daily, plain or hosts format). IPs: live (48 hours) or last 30 days. Domains: current (24 hours) or all-time. Also under fixed file names such as `/api2/netapi-compromised-ips.txt` | [compromised.md](endpoints/compromised.md) |
+| `compromised` | Compromised IP addresses (NetAPI Nightwatch honeypot network, hourly: plain, CSV / JSON Lines with threat data, ipset / nftables / iptables / MikroTik / CIDR, filters) or compromised domains (daily: plain, hosts, CSV / JSON Lines with threat data, without sinkholed domains). IPs: live (48 hours) or last 30 days. Domains: live list or history. Also under fixed file names such as `/api2/netapi-compromised-ips.txt` | [compromised.md](endpoints/compromised.md) |
 | `compromised-zone` | Currently compromised domains in one TLD | [compromised-zone.md](endpoints/compromised-zone.md) |
 
 ### JSON API (`/api-json/`)
@@ -122,7 +122,7 @@ Keep your token private: it identifies your account, and every request made with
 
 - Reference lists and downloads are CSV with a header row. Fields that may contain commas (provider names, registrar names, email and phone lists) are double-quoted.
 - `lookup-domain` and `lookup-ip` return CSV rows **without** a header. When nothing is found they return the text `NOT FOUND` with HTTP 200.
-- `compromised` and `compromised-zone` return one entry per line, preceded by a single `#` comment line with the list name and date. The IP lists also come as CSV / JSON Lines with threat data and in firewall formats (`format=csv|jsonl|ipset|nftables|iptables|mikrotik|cidr`), see [compromised.md](endpoints/compromised.md).
+- `compromised` and `compromised-zone` return one entry per line, preceded by a single `#` comment line with the list name and date. The live domain list and the IP lists also come as CSV / JSON Lines with threat data, the IP lists in firewall formats too (`format=csv|jsonl|ipset|nftables|iptables|mikrotik|cidr`), see [compromised.md](endpoints/compromised.md).
 - Downloads are served as `application/octet-stream` with a `Content-Disposition` filename, e.g. `net_active_list.csv.gz`.
 - Plain-text downloads can be very large (the `.com` dataset is several gigabytes uncompressed). Use `format=plain` only when you really need it.
 

@@ -121,7 +121,9 @@ paths:
 
             For `compromised`: `ip` (IP addresses that attacked NetAPI Nightwatch, NetAPI's honeypot network,
             in the last 48 hours, rebuilt hourly), `ip-all` (IPs of the last 30 days), `url` (current domains),
-            `url-all` (all domains ever listed).
+            `url-all` (the historical list: CERT Polska, NetAPI's own detection and blackbook, a source until 2026-11-22).
+            The live domain list: phishing confirmed by CERT Polska, malware domains on sinkhole nameservers and
+            domains related to confirmed phishing, the last two found by NetAPI.
           schema:
             type: string
             enum: [list, dataset, url, ip, url-all, ip-all]

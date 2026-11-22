@@ -35,7 +35,7 @@ url,dns1,dns2,hostname,ip,ip_country,registered_at,expiring_at,registrar_id,whoi
 | `expiring_at` | Expiration date, `YYYY-MM-DD`; empty if unknown. |
 | `registrar_id` | Numeric registrar ID; resolve it with [`registrars`](registrars.md). Empty if unknown. |
 | `whois_checked_at` | Date of the latest WHOIS/RDAP check of the registration data, `YYYY-MM-DD`; empty if never checked. |
-| `compromised` | Status in the [compromised domains feed](https://netapi.com/compromised-urls/): `listed_now` (listed within the last 24 hours), `listed_past` (listed earlier, not now) or empty (never listed). |
+| `compromised` | Status in the [compromised domains feed](https://netapi.com/compromised-urls/): `listed_now` (in the live list), `listed_past` (in the historical list, not now) or empty (in neither list). |
 
 Example (illustrative values):
 

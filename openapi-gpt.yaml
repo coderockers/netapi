@@ -55,7 +55,7 @@ paths:
                   first_seen: { type: [string, 'null'] }
                   last_seen: { type: [string, 'null'] }
                   block_reason: { type: [string, 'null'] }
-                  threat_type: { type: [string, 'null'], description: "How a domain got into the list, e.g. cert-polska, cert-bund. Null for an IP" }
+                  threat_type: { type: [string, 'null'], description: "How a domain got into the list: cert-polska, sinkhole-ns or related-phishing. Null for an IP" }
                   registrar: { type: [object, 'null'] }
                   note: { type: string }
         '400': { $ref: '#/components/responses/Error' }

@@ -3,7 +3,7 @@
 Two free threat-intelligence feeds behind one method:
 
 - **Compromised IPs** (`dataset_type=ip`, `ip-all`): IP addresses caught attacking [NetAPI Nightwatch](https://netapi.com/compromised-ips/), NetAPI's own honeypot network (password guessing, exploits, malware downloads). Every address on the list was seen attacking. Rebuilt every hour. Available as a plain list, as CSV or JSON Lines with threat data, in firewall formats, and as filtered custom lists.
-- **Compromised domains** (`dataset_type=url`, `url-all`): domain names reported as compromised or malicious by public feeds and notifications. Rebuilt daily. Available as a plain list or in hosts-file format.
+- **Compromised domains** (`dataset_type=url`, `url-all`): phishing domains confirmed by CERT Polska, malware domains that NetAPI finds delegated to the nameservers of sinkhole operators, and domains NetAPI finds on a nameserver pair or IP address where confirmed phishing domains are at least 5 and at least half of all domains, or whose homepage redirects to confirmed phishing. Every domain carries its source, the domains of NetAPI's own detection also the evidence. Rebuilt daily. Available as a plain list, in hosts-file format, as CSV or JSON Lines with threat data, and without the sinkholed domains.
 
 - **Authentication:** none
 - **Response:** plain text (`text/plain; charset=utf-8`, or CSV / JSON Lines), served as a file download
@@ -19,8 +19,8 @@ GET https://netapi.com/api2/?method=compromised&dataset_type={ip|ip-all|url|url-
 |---|---|---|
 | `ip` | IP addresses that attacked NetAPI Nightwatch in the last 48 hours, the **live** blocklist | ~29,000 |
 | `ip-all` | IP addresses that attacked NetAPI Nightwatch in the last 30 days (every address ever listed until 2026-11-20) | ~131,000 |
-| `url` | Domains seen on threat feeds in the last 24 hours, the **current** blocklist | ~143,000 |
-| `url-all` | Every domain ever listed since the feed started | ~1.2 million |
+| `url` | Domains in the **live** list: phishing (CERT Polska), sinkholed malware domains and domains related to phishing | ~284,000 |
+| `url-all` | The historical list: every domain listed by CERT Polska and by NetAPI's own detection, and the domains of blackbook, a source until 2026-11-22 | ~630,000 |
 
 Statistics, a map of attack origins, a list builder and the attack types of the IP feed are on [netapi.com/compromised-ips/](https://netapi.com/compromised-ips/). The domain feed is on [netapi.com/compromised-urls/](https://netapi.com/compromised-urls/).
 
@@ -168,13 +168,14 @@ https://netapi.com/api2/?method=compromised&dataset_type=url&format=csv
 ```
 domain,threat_type,evidence,first_seen,last_seen
 000359.xyz,cert-polska,,2026-11-18,2026-11-21
+time-popcorn.net,sinkhole-ns,ns sinkhole-00.shadowserver.org,2026-10-22,2026-11-22
 ```
 
 | Field | Meaning |
 |---|---|
 | `domain` | The domain name |
-| `threat_type` | The source the domain is listed under, for example `cert-polska` |
-| `evidence` | What NetAPI's own detection kept with the entry, for example the sinkhole nameserver. Empty in CSV and `null` in JSON for the CERT lists |
+| `threat_type` | The source the domain is listed under: `cert-polska` (phishing confirmed by CERT Polska), `sinkhole-ns` (a malware domain on the nameservers of a sinkhole operator, found by NetAPI) or `related-phishing` (a domain on a nameserver pair or IP address where confirmed phishing domains are at least 5 and at least half of all domains, or whose homepage redirects to confirmed phishing, found by NetAPI) |
+| `evidence` | What NetAPI's own detection kept with the entry: the sinkhole nameserver (`ns sc-a.sinkhole.shadowserver.org`), or the nameserver pair, address or redirect target shared with confirmed phishing. Empty in CSV and `null` in JSON for `cert-polska` |
 | `first_seen` | The day the domain was first listed, UTC (`YYYY-MM-DD`) |
 | `last_seen` | The last day its source confirmed it, UTC |
 
@@ -240,6 +241,7 @@ Complete examples in five languages: [examples/](../examples/) (`*-example-compr
 - The IP feed lists single IPv4 addresses only, no network ranges. `format=cidr` merges neighbouring addresses into blocks.
 - An address stays on the live list (`ip`) for 48 hours after its last attack and on `ip-all` for 30 days. Scanners of known research and security companies are not listed.
 - `url-all` is historical: a domain there was listed at some point and is not necessarily malicious now. `ip-all` holds the last 30 days only.
+- A domain leaves the live list when its source no longer confirms it: the day CERT Polska unblocks it, 3 days after it leaves a sinkhole nameserver, 36 hours after the link to confirmed phishing is gone.
 - The `url` lists contain host names only (registered domains and, where reported, subdomains), no schemes or paths.
 - To check a single domain or IP address, use [`compromised-check`](json-api.md) of the JSON API. Per-zone domain lists: [`compromised-zone`](compromised-zone.md). Abuse research by TLD and registrar: [netapi.com/research/](https://netapi.com/research/).
 - Web reference: [netapi.com/help/api/#compromised-ips-api](https://netapi.com/help/api/#compromised-ips-api) and [#compromised-domains-api](https://netapi.com/help/api/#compromised-domains-api).

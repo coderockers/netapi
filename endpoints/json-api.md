@@ -30,7 +30,7 @@ Public statistics answer with `Cache-Control: public, max-age=3600`; everything 
 
 | method | parameters | answer |
 |---|---|---|
-| `compromised-check` | `value` = domain, hostname, URL or IP | `listed_now` (a domain: in the current list, an IP: seen in the last 48 h), `listed_ever` (an IP: within the last 30 days), `first_seen`, `last_seen`, `block_reason`, `threat_type` (how a domain got into the list, such as `cert-polska` or `cert-bund`; `null` for an IP), `registrar`; parent domains of a hostname are tried too (`matched_value`). An IP address is checked against the compromised IP feed of NetAPI Nightwatch, NetAPI's honeypot network (`block_reason` such as `NetAPI network sensors: service exploit`) |
+| `compromised-check` | `value` = domain, hostname, URL or IP | `listed_now` (a domain: in the current list, an IP: seen in the last 48 h), `listed_ever` (an IP: within the last 30 days), `first_seen`, `last_seen`, `block_reason`, `threat_type` (how a domain got into the list: `cert-polska`, `sinkhole-ns` or `related-phishing`; `null` for an IP), `registrar`; parent domains of a hostname are tried too (`matched_value`). An IP address is checked against the compromised IP feed of NetAPI Nightwatch, NetAPI's honeypot network (`block_reason` such as `NetAPI network sensors: service exploit`) |
 | `search-new` | `q` (4+ characters), `days` 1-7 (default 1), `tld`, `match` = `contains` \| `starts`, `limit` | `results[]` (`domain`, `tld`, `added_on`), `truncated` |
 | `tld-stats` | `tld` | registry, `domains`, `new_24h`, `deleted_24h`, `change` over 7/30/90/365 days, `rank_by_size`, `compromised`, `top_1m`, `policies`, `description` |
 | `domain-rank` | `domain` | `rank` in the NetAPI Top 1M, `rank_in_tld` |
